@@ -79,7 +79,7 @@ export default function Navbar({ onOpenPalette }) {
           <RouterNavLink
             to="/"
             className="flex shrink-0 items-center gap-2 rounded-full py-1 pr-2"
-            aria-label={`${profile.firstName}, ke Beranda`}
+            aria-label={`${profile.firstName}, ke Home`}
           >
             <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent md:h-9 md:w-9">
               <LogoMark className="h-[42%] w-auto text-white" />

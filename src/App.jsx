@@ -13,9 +13,9 @@ const Contact = lazy(() => import('./pages/Contact'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 
 function routeLabel(pathname) {
-  if (pathname === '/') return 'Beranda';
+  if (pathname === '/') return 'Home';
   if (pathname.startsWith('/proyek/')) return 'Studi Kasus';
-  if (pathname.startsWith('/proyek')) return 'Proyek';
+  if (pathname.startsWith('/proyek')) return 'Projek';
   if (pathname.startsWith('/tools')) return 'Tools';
   if (pathname.startsWith('/journey')) return 'Journey';
   if (pathname.startsWith('/kontak')) return 'Kontak';

@@ -1,4 +1,4 @@
-﻿// Semua teks konten website ada di file ini agar mudah diedit.
+// Semua teks konten website ada di file ini agar mudah diedit.
 
 export const profile = {
   name: "Randi Nandika Danendra",
@@ -29,9 +29,9 @@ export const rotatingPhrases = [
 export const hero = {
   // Baris kecil di atas teks raksasa.
   sapaan: "Halo, saya Randi, mahasiswa Sains Data Terapan yang tertarik pada analisis data dan machine learning.",
-  // Dua baris teks raksasa.
-  lineSolid: "DATA SCIENTIST",
-  lineOutline: "RANDI NANDIKA",
+  // Dua baris teks raksasa (lebar disejajarkan oleh <FitText />).
+  lineSolid: "DATA ENTHUSIAST",
+  lineOutline: "TURNING DATA INTO INSIGHT",
   // Anotasi gaya chart (fakta nyata saja).
   anotasi: [
     "Python · SQL",
@@ -39,15 +39,27 @@ export const hero = {
     "F1 80% · FaultSense",
     "5 proyek",
   ],
-  // Baris peran dengan efek decode.
+  // Baris peran dengan efek typewriter.
   peran: {
-    prefix: "> sedang_mencari:",
-    rotasi: ["magang data scientist", "magang data analyst", "magang data engineer"],
+    prefix: "> open_to_internship:",
+    roles: ["Data Scientist", "Data Analyst", "Data Engineer"],
   },
   // Chip data ringkas, posisi menepi.
   chips: ["df.head()", "SELECT *", "model.fit()"],
-  ctaPrimary: "Lihat Proyek",
+  ctaPrimary: "Lihat Projek",
   ctaSecondary: "Hubungi Saya",
+};
+
+// Section identitas (kartu gaya editor kode).
+export const identity = {
+  eyebrow: "IDENTITAS",
+  filename: "randi.profile",
+  rows: [
+    { key: "nama:", type: "name", value: "Randi Nandika Danendra" },
+    { key: "studi:", type: "study", value: "D4 Sains Data Terapan", sub: "Politeknik Elektronika Negeri Surabaya" },
+    { key: "domisili:", type: "location", value: "Surabaya" },
+    { key: "peran:", type: "roles", roles: ["Data Scientist", "AI Engineer"] },
+  ],
 };
 
 // Alur scrollytelling: dari data mentah ke insight.
@@ -152,7 +164,7 @@ export const journey = {
 
 export const projectsSection = {
   eyebrow: "Studi Kasus",
-  title: "Proyek",
+  title: "Projek",
   titleAccent: "",
   subtitle:
     "Lima proyek, dari prediksi kerusakan mesin sampai pemantauan kualitas udara. Pilih proyek untuk melihat detailnya.",
@@ -240,7 +252,7 @@ export const projects = [
     period: "Juli 2026",
     categories: ["Machine Learning"],
     summary:
-      "Proyek machine learning end-to-end untuk memprediksi hujan besok memakai dataset WeatherAUS.",
+      "Projek machine learning end-to-end untuk memprediksi hujan besok memakai dataset WeatherAUS.",
     question:
       "Apakah besok akan hujan di Australia, berdasarkan data cuaca hari ini?",
     approach: [
@@ -382,7 +394,7 @@ export const timeline = {
       badge: "Semester 5",
       desc: "Fokus: Machine Learning Operations, Artificial Intelligence, Basis Data, Pemodelan Statistika.",
       detail:
-        "Menempuh D4 Sains Data Terapan, sekarang di semester 5. Mata kuliah yang relevan: Machine Learning Operations, Artificial Intelligence, Basis Data, dan Pemodelan Statistika. Proyek kuliah dikerjakan end-to-end, dari pengolahan data sampai evaluasi model.",
+        "Menempuh D4 Sains Data Terapan, sekarang di semester 5. Mata kuliah yang relevan: Machine Learning Operations, Artificial Intelligence, Basis Data, dan Pemodelan Statistika. Projek kuliah dikerjakan end-to-end, dari pengolahan data sampai evaluasi model.",
     },
     {
       type: "work",
@@ -422,7 +434,7 @@ export const timeline = {
       projectSlug: "australia-rain-prediction",
       desc: "Prediksi hujan besok dari data WeatherAUS: EDA, preprocessing, feature engineering, dan perbandingan model CatBoost, XGBoost, Random Forest.",
       detail:
-        "Proyek machine learning end-to-end: EDA dan preprocessing data cuaca WeatherAUS, feature engineering, lalu perbandingan model CatBoost, XGBoost, Linear Regression, dan Random Forest dengan hyperparameter tuning serta optimasi threshold.",
+        "Projek machine learning end-to-end: EDA dan preprocessing data cuaca WeatherAUS, feature engineering, lalu perbandingan model CatBoost, XGBoost, Linear Regression, dan Random Forest dengan hyperparameter tuning serta optimasi threshold.",
     },
     {
       type: "work",
@@ -586,7 +598,7 @@ export const pages = {
       "Portofolio Randi Nandika Danendra, mahasiswa Sains Data Terapan PENS. Dari data mentah ke insight: machine learning, klasifikasi, sistem rekomendasi, dan deployment.",
   },
   projects: {
-    title: "Proyek — Randi Nandika Danendra",
+    title: "Projek — Randi Nandika Danendra",
     description:
       "Lima studi kasus proyek data science dan machine learning: FaultSense, MedDistrib, AustraliaRainPrediction, JobifyAI, dan AIRWISE.",
   },
@@ -613,8 +625,8 @@ export const pages = {
 
 export const nav = {
   links: [
-    { label: "Beranda", to: "/" },
-    { label: "Proyek", to: "/proyek" },
+    { label: "Home", to: "/" },
+    { label: "Projek", to: "/proyek" },
     { label: "Tools", to: "/tools" },
     { label: "Journey", to: "/journey" },
   ],

@@ -175,7 +175,7 @@ export default function ProjectDetail() {
             </div>
 
             <div className="mt-12 border-t border-line pt-8">
-              <p className="text-[13px] text-muted">Proyek berikutnya</p>
+              <p className="text-[13px] text-muted">Projek berikutnya</p>
               <Link
                 to={`/proyek/${next.slug}`}
                 data-cursor="buka"

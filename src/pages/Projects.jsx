@@ -253,7 +253,7 @@ export default function Projects() {
     <div className="section px-5 pt-28 md:px-8 md:pt-32">
       <PageHeader
         eyebrow={projectsSection.eyebrow}
-        title="Proyek"
+        title="Projek"
         titleAccent=""
         subtitle={projectsSection.subtitle}
       />

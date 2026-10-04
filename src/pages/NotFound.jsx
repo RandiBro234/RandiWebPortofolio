@@ -31,7 +31,7 @@ export default function NotFound() {
             to="/proyek"
             className="rounded-pill border border-line px-6 py-3 text-[15px] font-semibold text-ink transition-colors hover:border-accent hover:text-accent"
           >
-            Lihat Proyek
+            Lihat Projek
           </Link>
         </div>
       </div>

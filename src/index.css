@@ -248,15 +248,14 @@
 
 /* Dua baris teks raksasa di hero. */
 .hero-giant {
+  display: block;
   font-family: var(--font-display);
   font-weight: 800;
   font-stretch: normal;
   text-transform: uppercase;
   letter-spacing: -0.03em;
   line-height: 0.95;
-  text-align: center;
   white-space: nowrap;
-  font-size: clamp(2.5rem, 8vw, 7rem);
   margin: 0;
 }
 
@@ -266,6 +265,106 @@
 
 .hero-giant-outline {
   color: #1a1a1a;
+}
+
+/* Kursor ketik berkedip. */
+@keyframes type-blink {
+  0%, 50% { opacity: 1; }
+  50.01%, 100% { opacity: 0; }
+}
+
+.hero-type-cursor {
+  animation: type-blink 1s steps(1) infinite;
+}
+
+/* Titik data bergoyang halus + titik status berdenyut. */
+@keyframes bob {
+  0%, 100% { transform: translateY(-2px); }
+  50% { transform: translateY(2px); }
+}
+
+@keyframes pulse-dot {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.5); opacity: 0.5; }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.10; }
+  50% { opacity: 0.18; }
+}
+
+/* Klip logam lanyard. */
+.clip-metal {
+  background: linear-gradient(135deg, #d8d8d8 0%, #f2f2f2 30%, #9a9a9a 55%, #cfcfcf 80%, #8f8f8f 100%);
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.6), 0 2px 4px rgba(0, 0, 0, 0.2);
+  position: relative;
+}
+
+.clip-metal::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  transform: translate(-50%, -50%);
+  background: #6f6f6f;
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.5);
+}
+
+/* Badge status berdenyut halus tiap 2 detik. */
+@keyframes status-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(1.4); }
+}
+
+.idstatus-dot {
+  animation: status-pulse 2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .idstatus-dot { animation: none; }
+}
+
+/* Kilau menyapu pada bar status (tiap 3 detik). */
+@keyframes status-shine {
+  0% { transform: translateX(-120%); }
+  60%, 100% { transform: translateX(320%); }
+}
+
+.status-shine {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 40%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.45), transparent);
+  animation: status-shine 3s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Marquee strip footer kartu (20s, pause saat hover). */
+@keyframes footer-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.footer-marquee {
+  display: inline-block;
+  animation: footer-scroll 20s linear infinite;
+}
+
+.idcard-stage:hover .footer-marquee {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .status-shine,
+  .footer-marquee {
+    animation: none;
+  }
 }
 
 /* Kartu ala polaroid untuk foto hero. */
@@ -307,10 +406,6 @@
 }
 
 @media (min-width: 1024px) {
-  .hero-giant {
-    text-align: left;
-    font-size: clamp(2.5rem, 5.4vw, 5.5rem);
-  }
   .hero-polaroid {
     width: min(28vw, 380px);
   }

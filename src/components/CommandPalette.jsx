@@ -44,7 +44,7 @@ export default function CommandPalette({ open, onOpenChange }) {
     ];
     const projectItems = projects.map((p) => ({
       label: p.title,
-      hint: 'Proyek',
+      hint: 'Projek',
       to: `/proyek/${p.id}`,
     }));
     const actionItems = [

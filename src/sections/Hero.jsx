@@ -1,118 +1,91 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { hero, profile } from '../data/content';
+import { hero } from '../data/content';
 import { ArrowIcon, ArrowRight } from '../components/icons';
 import Pill from '../components/Pill';
 import Magnetic from '../components/Magnetic';
+import IdCard from '../components/IdCard';
 import { useReducedMotion } from '../hooks';
 
-// --- Animasi teks raksasa: baris oranye naik per huruf, outline menyala. ---
-function GiantLines({ reduced }) {
-  const solidLetters = hero.lineSolid.split('');
-  const solidDelay = (i) => (reduced ? 0 : 0.3 + i * 0.025);
+// --- FitText: skala font agar lebar teks persis = lebar target. ---
+function FitText({ text, targetRef, className }) {
+  const ref = useRef(null);
+  const [size, setSize] = useState(null);
+
+  useEffect(() => {
+    const compute = () => {
+      const el = ref.current;
+      const target = targetRef.current;
+      if (!el || !target) return;
+
+      // Ukur lebar natural pada 100px memakai elemen tersembunyi sementara.
+      const probe = document.createElement('span');
+      probe.textContent = text;
+      probe.className = className;
+      probe.style.cssText =
+        'position:absolute;left:-99999px;top:0;visibility:hidden;' +
+        'display:inline-block;width:max-content;white-space:nowrap;font-size:100px;';
+      document.body.appendChild(probe);
+      const naturalWidth = probe.getBoundingClientRect().width;
+      document.body.removeChild(probe);
+
+      const targetWidth = target.getBoundingClientRect().width;
+      if (!targetWidth || !naturalWidth) return;
+      setSize((targetWidth / naturalWidth) * 100);
+    };
+
+    compute();
+    const ro = new ResizeObserver(compute);
+    if (targetRef.current) ro.observe(targetRef.current);
+    if (document.fonts?.ready) document.fonts.ready.then(compute);
+    window.addEventListener('resize', compute);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('resize', compute);
+    };
+  }, [text, targetRef, className]);
 
   return (
-    <div className="relative z-20 select-none" aria-hidden="true">
+    <span
+      ref={ref}
+      className={`hero-giant ${className}`}
+      style={size ? { fontSize: `${size}px` } : { visibility: 'hidden' }}
+    >
+      {text}
+    </span>
+  );
+}
+
+// --- Headline 2 baris, lebarnya disejajarkan. ---
+function GiantLines({ reduced }) {
+  const line1Ref = useRef(null);
+
+  return (
+    <div className="relative z-20 flex flex-col gap-2 select-none">
       <h1 className="sr-only">
-        {hero.lineSolid} {hero.lineOutline}
+        {hero.lineSolid} — {hero.lineOutline}
       </h1>
 
-      {/* Baris 1: SOLID oranye */}
-      <div className="hero-giant hero-giant-solid">
-        {solidLetters.map((ch, i) => (
-          <motion.span
-            key={`s-${i}`}
-            initial={reduced ? { opacity: 0 } : { opacity: 0, y: '0.6em' }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={
-              reduced
-                ? { duration: 0.15 }
-                : { duration: 0.5, delay: solidDelay(i), ease: [0.22, 1, 0.36, 1] }
-            }
-            className="inline-block"
-          >
-            {ch === ' ' ? '\u00A0' : ch}
-          </motion.span>
-        ))}
+      {/* Baris 1: acuan lebar */}
+      <div ref={line1Ref} className="w-full">
+        <FitText text={hero.lineSolid} targetRef={line1Ref} className="hero-giant-solid" />
       </div>
 
-      {/* Baris 2: OUTLINE hitam */}
+      {/* Baris 2: disamakan lebar dengan baris 1 */}
       <motion.div
+        className="w-full"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ duration: reduced ? 0.15 : 0.5, delay: reduced ? 0 : 0.05 }}
-        className="hero-giant hero-giant-outline"
+        transition={{ duration: reduced ? 0.15 : 0.5, delay: reduced ? 0 : 0.15 }}
       >
-        {hero.lineOutline}
+        <FitText text={hero.lineOutline} targetRef={line1Ref} className="hero-giant-outline" />
       </motion.div>
     </div>
   );
 }
 
-// --- Foto dalam kartu ala polaroid (dengan tilt 3D) ---
-function Cutout({ photoRef }) {
-  const tiltRef = useRef(null);
-  const reduced = useReducedMotion();
-  const [canTilt, setCanTilt] = useState(false);
-
-  useEffect(() => {
-    const canHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
-    setCanTilt(canHover && !reduced);
-  }, [reduced]);
-
-  const onMove = (e) => {
-    if (!canTilt || !tiltRef.current) return;
-    const r = tiltRef.current.getBoundingClientRect();
-    const px = (e.clientX - r.left) / r.width - 0.5;
-    const py = (e.clientY - r.top) / r.height - 0.5;
-    const rotY = px * 12;
-    const rotX = -py * 12;
-    tiltRef.current.style.transform =
-      `perspective(1000px) rotateX(${rotX}deg) rotateY(${rotY}deg) scale(1.02)`;
-    tiltRef.current.style.transition = 'transform 100ms ease-out';
-  };
-
-  const reset = () => {
-    if (!tiltRef.current) return;
-    tiltRef.current.style.transform = '';
-    tiltRef.current.style.transition = 'transform 300ms ease-out';
-  };
-
-  return (
-    <div
-      ref={tiltRef}
-      onMouseMove={onMove}
-      onMouseLeave={reset}
-      style={{ transformStyle: 'preserve-3d' }}
-    >
-      <div className="hero-polaroid relative">
-        <img
-          ref={photoRef}
-          src={profile.portrait}
-          alt="Foto Randi Nandika Danendra"
-          loading="eager"
-          width="520"
-          height="640"
-          className="hero-cutout relative z-10 select-none"
-          onError={(e) => {
-            e.currentTarget.style.display = 'none';
-            e.currentTarget.nextElementSibling?.removeAttribute('hidden');
-          }}
-        />
-        <div
-          hidden
-          className="hero-cutout grid place-items-center bg-ink/5 text-center text-[12px] font-medium text-muted"
-        >
-          Taruh foto di
-          <br />
-          <code className="text-accent">/assets/randi-cutout.png</code>
-        </div>
-        <span className="hero-polaroid-caption">Surabaya, 2026</span>
-      </div>
-    </div>
-  );
-}
+// --- (Kartu polaroid lama diganti <IdCard />) ---
 
 // Anotasi gaya chart: garis + titik + label, muncul berurutan (di sisi kanan kolom teks, dekat foto).
 function Annotations({ reduced }) {
@@ -146,28 +119,7 @@ function Annotations({ reduced }) {
   );
 }
 
-// Chip data menepi.
-function DataChips({ reduced }) {
-  const chips = [
-    { text: hero.chips[0], pos: 'left-[4%] top-[26%]' },
-    { text: hero.chips[1], pos: 'right-[5%] top-[46%]' },
-    { text: hero.chips[2], pos: 'left-[7%] bottom-[24%]' },
-  ];
-  if (reduced) return null;
-  return (
-    <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-30 hidden lg:block">
-      {chips.map((c, i) => (
-        <span
-          key={c.text}
-          className={`hero-chip-float absolute ${c.pos} rounded-pill border border-line bg-white/80 px-3 py-1 font-mono text-[11px] text-muted shadow-sm backdrop-blur`}
-          style={{ animationDelay: `${i * 0.7}s` }}
-        >
-          {c.text}
-        </span>
-      ))}
-    </div>
-  );
-}
+// (Label data kini berada di dalam <IdCard />.)
 
 // Scanner reticle mengikuti kursor, mengunci ke foto saat dekat.
 function Reticle({ targetRef, enabled }) {
@@ -228,54 +180,54 @@ function Reticle({ targetRef, enabled }) {
   );
 }
 
-// Baris peran dengan efek decode/scramble.
-function DecodeRole({ reduced }) {
-  const phrases = hero.peran.rotasi;
+// Baris peran dengan efek typewriter.
+function Typewriter({ words, reduced }) {
   const [index, setIndex] = useState(0);
-  const [text, setText] = useState(phrases[0]);
+  const [text, setText] = useState('');
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
-    if (reduced) {
-      setText(phrases[0]);
-      return;
-    }
+    if (reduced) return;
 
-    const target = phrases[index];
-    const chars = 'abcdefghijklmnopqrstuvwxyz0123456789_';
-    let frame = 0;
-    let raf = 0;
-    let holdTimer = 0;
+    const current = words[index % words.length];
+    const typing = !deleting;
+    const atFull = typing && text === current;
+    const atEmpty = deleting && text === '';
 
-    const step = () => {
-      frame += 1;
-      if (frame >= target.length) {
-        setText(target);
-        holdTimer = window.setTimeout(() => {
-          setIndex((i) => (i + 1) % phrases.length);
-        }, 2600);
-        return;
+    let delay = typing ? 70 : 40;
+    if (atFull) delay = 1600;
+    else if (atEmpty) delay = 300;
+
+    const timer = setTimeout(() => {
+      if (atFull) {
+        setDeleting(true);
+      } else if (atEmpty) {
+        setDeleting(false);
+        setIndex((i) => (i + 1) % words.length);
+      } else {
+        setText(
+          typing ? current.slice(0, text.length + 1) : current.slice(0, text.length - 1),
+        );
       }
-      const revealed = target.slice(0, frame);
-      const noise = target
-        .slice(frame)
-        .split('')
-        .map((ch) => (ch === ' ' ? ' ' : chars[Math.floor(Math.random() * chars.length)]))
-        .join('');
-      setText(revealed + noise);
-      raf = window.setTimeout(step, 45);
-    };
+    }, delay);
 
-    raf = window.setTimeout(step, 45);
+    return () => clearTimeout(timer);
+  }, [text, deleting, index, words, reduced]);
 
-    return () => {
-      clearTimeout(raf);
-      clearTimeout(holdTimer);
-    };
-  }, [index, phrases, reduced]);
+  if (reduced) {
+    return (
+      <p className="font-mono text-[12px] text-muted sm:text-[13px]">
+        <span className="text-accent">{hero.peran.prefix}</span>{' '}
+        <span className="text-neutral-700">{words.join(' · ')}</span>
+      </p>
+    );
+  }
 
   return (
     <p className="font-mono text-[12px] text-muted sm:text-[13px]" aria-live="polite">
-      <span className="text-accent">{hero.peran.prefix}</span> {text}
+      <span className="text-accent">{hero.peran.prefix}</span>{' '}
+      <span className="text-neutral-700">{text}</span>
+      <span className="hero-type-cursor ml-0.5 inline-block text-accent">|</span>
     </p>
   );
 }
@@ -321,9 +273,6 @@ export default function Hero() {
   }, [reduced]);
 
   const offset = useParallax(desktop);
-  const photoStyle = desktop
-    ? { transform: `translate3d(${offset.x * 10}px, ${offset.y * 8}px, 0)` }
-    : undefined;
   const textStyle = desktop
     ? { transform: `translate3d(${offset.x * -4}px, ${offset.y * -3}px, 0)` }
     : undefined;
@@ -358,16 +307,16 @@ export default function Hero() {
           </motion.p>
 
           {/* Blok teks raksasa */}
-          <div className="relative mt-4 w-full" style={textStyle}>
+          <div className="relative mt-4 w-full xl:pr-8" style={textStyle}>
             <div className="relative w-full">
               <GiantLines reduced={reduced} />
             </div>
             <Annotations reduced={reduced} />
           </div>
 
-          {/* Baris peran dengan decode */}
-          <div className="relative z-40 mt-4">
-            <DecodeRole reduced={reduced} />
+          {/* Baris peran dengan typewriter */}
+          <div className="relative z-40 mt-3 min-h-[20px]">
+            <Typewriter words={hero.peran.roles} reduced={reduced} />
           </div>
 
           {/* Tombol: kiri-bawah & kanan-bawah di dalam kolom teks */}
@@ -399,11 +348,10 @@ export default function Hero() {
           </div>
         </div>
 
-        {/* KANAN: foto cutout */}
-        <div className="relative flex justify-center lg:justify-end">
-          <div className="relative pointer-events-auto" style={photoStyle}>
-            <Cutout photoRef={photoRef} />
-            <DataChips reduced={reduced} />
+        {/* KANAN: ID card dengan lanyard */}
+        <div className="relative flex justify-center pt-2 lg:justify-end">
+          <div className="pointer-events-auto">
+            <IdCard photoRef={photoRef} />
           </div>
         </div>
       </div>

@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import Hero from '../sections/Hero';
 import Journey from '../sections/Journey';
 import Services from '../sections/Services';
+import IdentityCard from '../components/IdentityCard';
 import Reveal from '../components/Reveal';
 import { ArrowIcon } from '../components/icons';
 import { pages } from '../data/content';
@@ -14,6 +15,7 @@ export default function Home() {
     <>
       <h1 className="sr-only">Randi Nandika Danendra, Data Scientist</h1>
       <Hero />
+      <IdentityCard />
       <Journey />
       <Services />
 
@@ -33,7 +35,7 @@ export default function Home() {
               data-cursor="buka"
               className="inline-flex shrink-0 items-center gap-2 rounded-pill bg-accent px-6 py-3 text-[15px] font-semibold text-white transition-all hover:-translate-y-px hover:bg-[#e63f16]"
             >
-              Lihat Proyek
+              Lihat Projek
               <ArrowIcon size={16} />
             </Link>
           </div>
