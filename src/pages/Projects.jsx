@@ -79,7 +79,7 @@ function ProjectPreview({ project, compact = false }) {
           href={project.demoUrl}
           target="_blank"
           rel="noopener noreferrer"
-          data-cursor="Buka"
+          data-cursor="buka"
           className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-pill bg-ink px-3 py-1.5 text-[12px] font-semibold text-white transition-colors hover:bg-accent"
         >
           Lihat Demo
@@ -103,7 +103,7 @@ function DetailPanel({ project, compact = false }) {
         animate={{ opacity: 1, x: 0 }}
         exit={reduced ? { opacity: 0 } : { opacity: 0, x: -16 }}
         transition={{ duration: reduced ? 0.12 : 0.25, ease: [0.22, 1, 0.36, 1] }}
-        className="rounded-card border border-line bg-white p-6 md:p-8"
+        className="rounded-card border border-line bg-white p-6 transition-all duration-[250ms] ease-out hover:-translate-y-1 hover:border-accent/40 hover:shadow-xl md:p-8"
       >
         <ProjectPreview project={project} compact={compact} />
 
@@ -161,7 +161,7 @@ function DetailPanel({ project, compact = false }) {
         <div className="mt-6 flex flex-wrap items-center gap-2">
           <Link
             to={`/proyek/${project.slug}`}
-            data-cursor="Baca"
+            data-cursor="baca"
             className="group inline-flex items-center gap-2 rounded-pill bg-accent px-4 py-2.5 text-[14px] font-semibold text-white transition-all hover:-translate-y-px hover:bg-[#e63f16]"
           >
             Baca Studi Kasus
@@ -172,7 +172,7 @@ function DetailPanel({ project, compact = false }) {
               href={project.githubUrl}
               target="_blank"
               rel="noopener noreferrer"
-              data-cursor="Buka"
+              data-cursor="buka"
               className="rounded-pill border border-line px-4 py-2.5 text-[14px] font-semibold text-ink transition-colors hover:border-accent hover:text-accent"
             >
               GitHub
@@ -183,7 +183,7 @@ function DetailPanel({ project, compact = false }) {
               href={project.demoUrl}
               target="_blank"
               rel="noopener noreferrer"
-              data-cursor="Buka"
+              data-cursor="buka"
               className="rounded-pill border border-line px-4 py-2.5 text-[14px] font-semibold text-ink transition-colors hover:border-accent hover:text-accent"
             >
               Lihat Demo
@@ -297,7 +297,7 @@ export default function Projects() {
                       aria-selected={active}
                       aria-controls="project-panel"
                       onClick={() => select(p.slug)}
-                      data-cursor="Lihat"
+                      data-cursor="lihat"
                       className={cn(
                         'group flex w-full items-center gap-3 border-b border-line py-3.5 text-left transition-transform lg:py-4',
                         active ? 'translate-x-0' : 'text-muted hover:translate-x-1.5',

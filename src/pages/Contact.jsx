@@ -26,7 +26,7 @@ function CopyButton({ value }) {
     <button
       type="button"
       onClick={onCopy}
-      data-cursor="Salin"
+      data-cursor="salin"
       className="rounded-pill border border-line px-3.5 py-2 text-[13px] font-semibold text-ink transition-colors hover:border-accent hover:text-accent"
     >
       {copied ? contact.copiedCta : contact.copyCta}
@@ -37,7 +37,7 @@ function CopyButton({ value }) {
 function ContactCard({ label, value, icon, actions }) {
   return (
     <div
-      data-cursor="Buka"
+      data-cursor="buka"
       className="group flex flex-col rounded-card border border-line bg-white p-5 transition-transform duration-300 hover:-translate-y-1 hover:rotate-[-0.5deg]"
     >
       <div className="flex items-center gap-2 text-accent">{icon}<span className="text-[13px] font-semibold uppercase tracking-wider">{label}</span></div>
@@ -136,7 +136,7 @@ function MessageForm() {
       </label>
       <button
         type="submit"
-        data-cursor="Buka"
+        data-cursor="buka"
         className="mt-5 inline-flex items-center gap-2 rounded-pill bg-ink px-5 py-2.5 text-[14px] font-semibold text-white transition-colors hover:bg-accent"
       >
         {contact.form.submit}
@@ -276,7 +276,7 @@ export default function Contact() {
                 <CopyButton value={profile.email} />
                 <a
                   href={`mailto:${profile.email}`}
-                  data-cursor="Buka"
+                  data-cursor="buka"
                   className="rounded-pill bg-accent px-3.5 py-2 text-[13px] font-semibold text-white hover:bg-[#e63f16]"
                 >
                   {contact.emailCta}
@@ -293,7 +293,7 @@ export default function Contact() {
                 href={`${profile.whatsappLink}?text=${encodeURIComponent(contact.waMessage)}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                data-cursor="Buka"
+                data-cursor="buka"
                 className="rounded-pill border border-line px-3.5 py-2 text-[13px] font-semibold text-ink hover:border-accent hover:text-accent"
               >
                 Chat WhatsApp
@@ -309,7 +309,7 @@ export default function Contact() {
                 href={profile.linkedin}
                 target="_blank"
                 rel="noopener noreferrer"
-                data-cursor="Buka"
+                data-cursor="buka"
                 className="rounded-pill border border-line px-3.5 py-2 text-[13px] font-semibold text-ink hover:border-accent hover:text-accent"
               >
                 Buka LinkedIn
@@ -325,7 +325,7 @@ export default function Contact() {
                 href={profile.github}
                 target="_blank"
                 rel="noopener noreferrer"
-                data-cursor="Buka"
+                data-cursor="buka"
                 className="rounded-pill border border-line px-3.5 py-2 text-[13px] font-semibold text-ink hover:border-accent hover:text-accent"
               >
                 Buka GitHub
@@ -343,7 +343,7 @@ export default function Contact() {
             <a
               href={profile.cvPath}
               download
-              data-cursor="Unduh"
+              data-cursor="unduh"
               className="inline-flex items-center gap-2 rounded-pill bg-accent px-6 py-3 text-[15px] font-semibold text-white transition-all hover:-translate-y-px hover:bg-[#e63f16]"
             >
               Unduh CV

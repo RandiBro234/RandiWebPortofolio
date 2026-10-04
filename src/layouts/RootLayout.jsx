@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import CustomCursor from '../components/CustomCursor';
 import ScrollProgress from '../components/ScrollProgress';
 import BackToTop from '../components/BackToTop';
 import CommandPalette from '../components/CommandPalette';
@@ -21,7 +20,6 @@ export default function RootLayout({ children, showPanel, panelLabel }) {
       </a>
 
       <ScrollProgress />
-      <CustomCursor />
       <Navbar onOpenPalette={() => setPaletteOpen(true)} />
       <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} />
 

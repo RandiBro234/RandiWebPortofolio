@@ -1,42 +1,68 @@
-import { useRef } from 'react';
-import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import { useEffect, useRef, useState } from 'react';
 import { useReducedMotion } from '../hooks';
 import { cn } from '../utils';
 
-// Tombol magnetik: ikut tertarik sedikit ke arah kursor.
-export default function Magnetic({ children, className, strength = 12, as: Tag = 'div' }) {
+// Tombol magnetik: bergeser maksimal 8px ke arah kursor saat kursor berada
+// dalam radius ~80px dari tombol. Nonaktif di perangkat touch & reduced-motion.
+const RADIUS = 80;
+const MAX_SHIFT = 8;
+
+export default function Magnetic({ children, className }) {
   const reduced = useReducedMotion();
+  const [allowed, setAllowed] = useState(false);
   const ref = useRef(null);
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-  const sx = useSpring(x, { stiffness: 250, damping: 18 });
-  const sy = useSpring(y, { stiffness: 250, damping: 18 });
-  const tx = useTransform(sx, (v) => v);
-  const ty = useTransform(sy, (v) => v);
+  const raf = useRef(0);
 
-  const onMove = (e) => {
-    if (reduced || !ref.current) return;
-    if (!window.matchMedia('(pointer: fine)').matches) return;
-    const r = ref.current.getBoundingClientRect();
-    x.set(((e.clientX - (r.left + r.width / 2)) / r.width) * strength);
-    y.set(((e.clientY - (r.top + r.height / 2)) / r.height) * strength);
-  };
-  const reset = () => {
-    x.set(0);
-    y.set(0);
-  };
+  useEffect(() => {
+    const canHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    setAllowed(canHover && !reduced);
+  }, [reduced]);
 
-  const MotionTag = motion[Tag] || motion.div;
+  useEffect(() => {
+    if (!allowed) return;
+
+    const onMove = (e) => {
+      cancelAnimationFrame(raf.current);
+      raf.current = requestAnimationFrame(() => {
+        const el = ref.current;
+        if (!el) return;
+        const r = el.getBoundingClientRect();
+        const cx = r.left + r.width / 2;
+        const cy = r.top + r.height / 2;
+        const dx = e.clientX - cx;
+        const dy = e.clientY - cy;
+        const dist = Math.hypot(dx, dy);
+        const reach = Math.max(r.width, r.height) / 2 + RADIUS;
+
+        if (dist <= reach) {
+          const pull = 1 - dist / reach;
+          const halfW = r.width / 2 || 1;
+          const halfH = r.height / 2 || 1;
+          const clamp = (v) => Math.max(-MAX_SHIFT, Math.min(MAX_SHIFT, v));
+          const tx = clamp(dx * pull * (MAX_SHIFT / halfW));
+          const ty = clamp(dy * pull * (MAX_SHIFT / halfH));
+          el.style.transform = `translate3d(${tx}px, ${ty}px, 0)`;
+        } else {
+          el.style.transform = 'translate3d(0, 0, 0)';
+        }
+      });
+    };
+
+    window.addEventListener('mousemove', onMove, { passive: true });
+    return () => {
+      window.removeEventListener('mousemove', onMove);
+      cancelAnimationFrame(raf.current);
+      if (ref.current) ref.current.style.transform = 'translate3d(0, 0, 0)';
+    };
+  }, [allowed]);
 
   return (
-    <MotionTag
+    <div
       ref={ref}
-      onMouseMove={onMove}
-      onMouseLeave={reset}
-      style={{ x: tx, y: ty }}
-      className={cn(className)}
+      className={cn('inline-block will-change-transform', className)}
+      style={{ transition: 'transform 300ms ease-out' }}
     >
       {children}
-    </MotionTag>
+    </div>
   );
 }

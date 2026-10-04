@@ -30,7 +30,7 @@ export default function Home() {
             </div>
             <Link
               to="/proyek"
-              data-cursor="Buka"
+              data-cursor="buka"
               className="inline-flex shrink-0 items-center gap-2 rounded-pill bg-accent px-6 py-3 text-[15px] font-semibold text-white transition-all hover:-translate-y-px hover:bg-[#e63f16]"
             >
               Lihat Proyek

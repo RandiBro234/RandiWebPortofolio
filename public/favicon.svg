@@ -1,5 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="18" fill="#FF4B1F" />
-  <text x="32" y="44" font-family="Syne, Arial, sans-serif" font-size="38" font-weight="800"
-    text-anchor="middle" fill="#FFFFFF">R</text>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#FF4B1F"/><path fill="#fff" fill-rule="evenodd" transform="translate(16.9 15.5) scale(0.082)" d="M0 0H236A126 126 0 0 1 236 252L368 402H250L120 252H90V402H0Z M90 87H231A39 39 0 0 1 231 165H90Z"/></svg>

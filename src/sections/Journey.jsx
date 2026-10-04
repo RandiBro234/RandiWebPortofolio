@@ -1,24 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { journey } from '../data/content';
 import SectionHeading from '../components/SectionHeading';
 import Reveal from '../components/Reveal';
+import ExampleCards from '../components/ExampleCards';
 import { cn, scrollToId } from '../utils';
 import { visuals } from '../components/JourneyVisuals';
-
-function IllustrationLabel() {
-  return (
-    <span className="absolute right-3 top-3 rounded-pill bg-ink/80 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-white">
-      Ilustrasi
-    </span>
-  );
-}
 
 function StageVisual({ visual }) {
   const Visual = visuals[visual];
   return (
     <div className="relative overflow-hidden rounded-card border border-line bg-white p-4">
-      <IllustrationLabel />
       <div className="mx-auto h-[220px] w-full max-w-md lg:h-[340px] lg:max-w-none">
         <Visual />
       </div>
@@ -54,23 +45,7 @@ function Stage({ stage, index, active }) {
         <p className="mt-3 max-w-md text-[15px] leading-[1.65] text-muted">
           {stage.narrative}
         </p>
-        {stage.linkSlug ? (
-          <Link
-            to={`/proyek/${stage.linkSlug}`}
-            data-cursor="Lihat"
-            className="mt-3 inline-flex items-center gap-1.5 rounded-pill border border-line px-3 py-1.5 text-[13px] font-medium text-ink transition-colors hover:border-accent hover:text-accent"
-          >
-            {stage.project}
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <path d="M7 17 17 7" />
-              <path d="M8 7h9v9" />
-            </svg>
-          </Link>
-        ) : (
-          <p className="mt-3 inline-flex rounded-pill border border-line px-3 py-1.5 text-[13px] font-medium text-ink">
-            {stage.project}
-          </p>
-        )}
+        <ExampleCards label={stage.exampleLabel} items={stage.examples} />
       </div>
       <Reveal delay={80}>
         <StageVisual visual={stage.visual} />

@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { NavLink as RouterNavLink, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { nav, profile } from '../data/content';
+import LogoMark from './LogoMark';
+import Magnetic from './Magnetic';
 import { cn } from '../utils';
 
 function NavItem({ item, active, onClick }) {
@@ -79,8 +81,8 @@ export default function Navbar({ onOpenPalette }) {
             className="flex shrink-0 items-center gap-2 rounded-full py-1 pr-2"
             aria-label={`${profile.firstName}, ke Beranda`}
           >
-            <span className="grid h-9 w-9 place-items-center rounded-full bg-accent font-display text-base text-white">
-              R
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent md:h-9 md:w-9">
+              <LogoMark className="h-[42%] w-auto text-white" />
             </span>
             <span className="font-display text-[18px] text-white">
               {profile.firstName}
@@ -111,17 +113,19 @@ export default function Navbar({ onOpenPalette }) {
               Ctrl K
             </button>
 
-            <button
-              type="button"
-              onClick={() => navigate(nav.cta.to)}
-              className="ml-2 inline-flex items-center gap-1 rounded-full bg-accent px-4 py-2 text-[14px] font-semibold text-white transition-all hover:-translate-y-px hover:bg-[#e63f16]"
-            >
-              {nav.cta.label}
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <path d="M7 17 17 7" />
-                <path d="M8 7h9v9" />
-              </svg>
-            </button>
+            <Magnetic className="ml-2">
+              <button
+                type="button"
+                onClick={() => navigate(nav.cta.to)}
+                className="inline-flex items-center gap-1 rounded-full bg-accent px-4 py-2 text-[14px] font-semibold text-white transition-all hover:-translate-y-px hover:bg-[#e63f16]"
+              >
+                {nav.cta.label}
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M7 17 17 7" />
+                  <path d="M8 7h9v9" />
+                </svg>
+              </button>
+            </Magnetic>
           </div>
 
           {/* hamburger */}

@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import Layout from './layouts/RootLayout';
+import CustomCursor from './components/CustomCursor';
 import { useReducedMotion } from './hooks';
 
 const Home = lazy(() => import('./pages/Home'));
@@ -86,6 +87,7 @@ export default function App() {
 
   return (
     <Layout showPanel={showPanel} panelLabel={panelLabel}>
+      <CustomCursor />
       <Suspense fallback={<PageFallback />}>
         <Routes location={displayLocation}>
           <Route index element={<Home />} />

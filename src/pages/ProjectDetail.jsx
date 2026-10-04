@@ -94,7 +94,7 @@ export default function ProjectDetail() {
                 href={project.githubUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                data-cursor="Buka"
+                data-cursor="buka"
                 className="rounded-pill bg-ink px-4 py-2 text-[13px] font-semibold text-white transition-colors hover:bg-accent"
               >
                 Kode di GitHub
@@ -105,7 +105,7 @@ export default function ProjectDetail() {
                 href={project.demoUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                data-cursor="Buka"
+                data-cursor="buka"
                 className="rounded-pill border border-line px-4 py-2 text-[13px] font-semibold text-ink transition-colors hover:border-accent hover:text-accent"
               >
                 Lihat Demo
@@ -178,7 +178,7 @@ export default function ProjectDetail() {
               <p className="text-[13px] text-muted">Proyek berikutnya</p>
               <Link
                 to={`/proyek/${next.slug}`}
-                data-cursor="Buka"
+                data-cursor="buka"
                 className="mt-2 inline-flex items-center gap-2 font-display text-2xl font-extrabold text-ink transition-colors hover:text-accent"
               >
                 {next.name}

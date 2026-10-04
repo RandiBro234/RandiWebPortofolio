@@ -27,36 +27,36 @@ export const rotatingPhrases = [
 ];
 
 export const hero = {
-  badge: "Halo!",
-  headingLead: "Saya",
-  headingName: "Randi",
-  headingTail: ", Data Scientist",
-  quote:
-    "Saya mengubah data berantakan menjadi model dan insight yang bisa dipakai untuk mengambil keputusan.",
-  stats: [
-    { value: 5, suffix: "", label: "Proyek" },
-    { value: 80, suffix: "%", label: "F1-Score Model Predictive Maintenance" },
+  // Baris kecil di atas teks raksasa.
+  sapaan: "Halo, saya Randi, mahasiswa Sains Data Terapan yang tertarik pada analisis data dan machine learning.",
+  // Dua baris teks raksasa.
+  lineSolid: "DATA SCIENTIST",
+  lineOutline: "RANDI NANDIKA",
+  // Anotasi gaya chart (fakta nyata saja).
+  anotasi: [
+    "Python · SQL",
+    "Semester 5 · PENS",
+    "F1 80% · FaultSense",
+    "5 proyek",
   ],
+  // Baris peran dengan efek decode.
+  peran: {
+    prefix: "> sedang_mencari:",
+    rotasi: ["magang data scientist", "magang data analyst", "magang data engineer"],
+  },
+  // Chip data ringkas, posisi menepi.
+  chips: ["df.head()", "SELECT *", "model.fit()"],
   ctaPrimary: "Lihat Proyek",
-  ctaSecondary: "Butuh Data Scientist?",
+  ctaSecondary: "Hubungi Saya",
 };
-
-export const floatingChips = [
-  "SELECT *",
-  "df.head()",
-  "model.fit()",
-  "df.dropna()",
-  "corr()",
-  "predict()",
-];
 
 // Alur scrollytelling: dari data mentah ke insight.
 export const journey = {
   eyebrow: "Alur Kerja",
-  title: "Dari Data Mentah ke",
+  title: "Dari Data Mentah Jadi Sebuah",
   titleAccent: "Insight",
   subtitle:
-    "Alur kerja data science bukan garis lurus sekali jalan, tapi satu perjalanan yang saya lalui di setiap proyek.",
+    "Setiap proyek saya mulai dari data yang masih berantakan, lalu saya olah tahap demi tahap sampai menjadi insight yang bisa dipakai untuk mengambil keputusan.",
   stages: [
     {
       no: "01",
@@ -64,9 +64,12 @@ export const journey = {
       title: "Pertanyaan",
       narrative:
         "Semua analisis dimulai dari masalah yang jelas. Sebelum menyentuh data, saya tentukan keputusan apa yang ingin dibantu.",
-      project:
-        "Contoh: kapan mesin akan rusak (FaultSense), provinsi mana yang diprioritaskan (MedDistrib), apakah besok hujan (AustraliaRainPrediction)?",
-      linkSlug: "faultsense",
+      exampleLabel: "Contoh Pertanyaan",
+      examples: [
+        { text: "Kapan mesin akan rusak?", project: "FaultSense", slug: "faultsense" },
+        { text: "Provinsi mana yang diprioritaskan?", project: "MedDistrib", slug: "meddistrib" },
+        { text: "Apakah besok hujan?", project: "AustraliaRainPrediction", slug: "australia-rain-prediction" },
+      ],
       visual: "question",
     },
     {
@@ -75,8 +78,10 @@ export const journey = {
       title: "Data Mentah",
       narrative:
         "Data nyata itu kotor: ada yang kosong, ganda, dan tidak konsisten. Ini titik awal yang jujur dari hampir setiap proyek.",
-      project: "Contoh: MedDistrib, data tenaga kesehatan tiap provinsi.",
-      linkSlug: "meddistrib",
+      exampleLabel: "Contoh Data",
+      examples: [
+        { text: "Data tenaga kesehatan tiap provinsi.", project: "MedDistrib", slug: "meddistrib" },
+      ],
       visual: "raw",
     },
     {
@@ -85,9 +90,11 @@ export const journey = {
       title: "Pembersihan & ETL",
       narrative:
         "Merapikan data dan membangun pipeline yang bisa diulang: menangani nilai kosong, menyelaraskan tipe, dan menyiapkan fitur yang bersih sebelum dipakai model.",
-      project:
-        "Contoh: AustraliaRainPrediction, preprocessing dan feature engineering dari data cuaca WeatherAUS; JobifyAI, text mining Bahasa Indonesia.",
-      linkSlug: "australia-rain-prediction",
+      exampleLabel: "Contoh Pembersihan",
+      examples: [
+        { text: "Preprocessing dan feature engineering data cuaca WeatherAUS.", project: "AustraliaRainPrediction", slug: "australia-rain-prediction" },
+        { text: "Text mining Bahasa Indonesia.", project: "JobifyAI", slug: "jobifyai" },
+      ],
       visual: "clean",
     },
     {
@@ -96,9 +103,11 @@ export const journey = {
       title: "Eksplorasi (EDA)",
       narrative:
         "Mencari pola, korelasi, dan anomali. Grafik muncul satu per satu sampai bentuk masalahnya mulai terlihat.",
-      project:
-        "Contoh: AustraliaRainPrediction, EDA data cuaca; AIRWISE, deteksi anomali kualitas udara dengan Isolation Forest.",
-      linkSlug: "airwise",
+      exampleLabel: "Contoh Eksplorasi",
+      examples: [
+        { text: "EDA data cuaca WeatherAUS.", project: "AustraliaRainPrediction", slug: "australia-rain-prediction" },
+        { text: "Deteksi anomali kualitas udara dengan Isolation Forest.", project: "AIRWISE", slug: "airwise" },
+      ],
       visual: "eda",
     },
     {
@@ -107,9 +116,10 @@ export const journey = {
       title: "Pemodelan",
       narrative:
         "Feature engineering, pemilihan model, dan evaluasi. Saya tidak berhenti di satu algoritma tanpa membandingkannya.",
-      project:
-        "Contoh: AustraliaRainPrediction, perbandingan CatBoost, XGBoost, Linear Regression, dan Random Forest, hyperparameter tuning, lalu optimasi threshold.",
-      linkSlug: "australia-rain-prediction",
+      exampleLabel: "Contoh Pemodelan",
+      examples: [
+        { text: "Perbandingan CatBoost, XGBoost, Linear Regression, dan Random Forest, lalu hyperparameter tuning dan optimasi threshold.", project: "AustraliaRainPrediction", slug: "australia-rain-prediction" },
+      ],
       visual: "model",
     },
     {
@@ -118,8 +128,10 @@ export const journey = {
       title: "Insight & Keputusan",
       narrative:
         "Hasil diterjemahkan jadi rekomendasi yang bisa ditindaklanjuti, bukan sekadar angka di laporan.",
-      project: "Contoh: MedDistrib, skor prioritas distribusi tenaga kesehatan.",
-      linkSlug: "meddistrib",
+      exampleLabel: "Contoh Insight",
+      examples: [
+        { text: "Skor prioritas distribusi tenaga kesehatan.", project: "MedDistrib", slug: "meddistrib" },
+      ],
       visual: "insight",
     },
     {
@@ -128,9 +140,11 @@ export const journey = {
       title: "Deployment",
       narrative:
         "Model dipakai nyata lewat API, Docker, dan tracking eksperimen MLflow supaya hasilnya bisa diandalkan.",
-      project:
-        "Contoh: FaultSense dengan FastAPI, Docker, dan MLflow; MedDistrib dengan dashboard rekomendasi yang live di Vercel.",
-      linkSlug: "faultsense",
+      exampleLabel: "Contoh Deployment",
+      examples: [
+        { text: "FastAPI, Docker, dan MLflow.", project: "FaultSense", slug: "faultsense" },
+        { text: "Dashboard rekomendasi yang live di Vercel.", project: "MedDistrib", slug: "meddistrib" },
+      ],
       visual: "deploy",
     },
   ],

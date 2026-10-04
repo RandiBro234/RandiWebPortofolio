@@ -1,123 +1,295 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { hero, profile, rotatingPhrases } from '../data/content';
-import { ArrowIcon, ArrowRight, QuoteIcon } from '../components/icons';
-import Counter from '../components/Counter';
-import Typewriter from '../components/Typewriter';
+import { hero, profile } from '../data/content';
+import { ArrowIcon, ArrowRight } from '../components/icons';
 import Pill from '../components/Pill';
 import Magnetic from '../components/Magnetic';
 import { useReducedMotion } from '../hooks';
 
-// Chip data menimpa tepi arch, tetap di dalam container.
-const heroChips = [
-  { text: 'F1 80%', pos: 'top-[24%] left-0', style: { marginLeft: '-26%' }, depth: 16, delay: '0s' },
-  { text: 'df.head()', pos: 'top-[50%] right-0', style: { marginRight: '-18%' }, depth: 22, delay: '1.1s' },
-  { text: 'SELECT *', pos: 'bottom-[18%] left-0', style: { marginLeft: '-20%' }, depth: 28, delay: '2.2s' },
-];
+// --- Animasi teks raksasa: baris oranye naik per huruf, outline menyala. ---
+function GiantLines({ reduced }) {
+  const solidLetters = hero.lineSolid.split('');
+  const solidDelay = (i) => (reduced ? 0 : 0.3 + i * 0.025);
 
-function HandUnderline() {
   return (
-    <svg
-      aria-hidden="true"
-      viewBox="0 0 240 24"
-      preserveAspectRatio="none"
-      className="hero-underline pointer-events-none absolute -bottom-[0.12em] left-0 h-[0.3em] w-full text-accent"
-    >
-      <path d="M4 15c46-6 118-9 232-6" fill="none" stroke="currentColor" strokeWidth="6" strokeLinecap="round" />
-      <path d="M12 20c40-4 108-6 208-3" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" opacity="0.55" />
-    </svg>
-  );
-}
+    <div className="relative z-20 select-none" aria-hidden="true">
+      <h1 className="sr-only">
+        {hero.lineSolid} {hero.lineOutline}
+      </h1>
 
-function Spark({ className, size = 22 }) {
-  return (
-    <svg aria-hidden="true" width={size} height={size} viewBox="0 0 24 24" fill="currentColor" className={className}>
-      <path d="M12 1c.6 4.7 2.3 7.4 3.4 8.6C16.6 10.7 19.3 11.4 23 12c-3.7.6-6.4 1.3-7.6 2.4C14.3 15.6 12.6 18.3 12 23c-.6-4.7-2.3-7.4-3.4-8.6C7.4 13.3 4.7 12.6 1 12c3.7-.6 6.4-1.3 7.6-2.4C9.7 8.4 11.4 5.7 12 1z" />
-    </svg>
-  );
-}
+      {/* Baris 1: SOLID oranye */}
+      <div className="hero-giant hero-giant-solid">
+        {solidLetters.map((ch, i) => (
+          <motion.span
+            key={`s-${i}`}
+            initial={reduced ? { opacity: 0 } : { opacity: 0, y: '0.6em' }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={
+              reduced
+                ? { duration: 0.15 }
+                : { duration: 0.5, delay: solidDelay(i), ease: [0.22, 1, 0.36, 1] }
+            }
+            className="inline-block"
+          >
+            {ch === ' ' ? '\u00A0' : ch}
+          </motion.span>
+        ))}
+      </div>
 
-function Portrait({ parallax }) {
-  return (
-    <div className="relative mx-auto w-full max-w-[22rem]">
-      <motion.div style={parallax.depth(8)} className="hero-arch-group relative mx-auto w-fit">
-        <div
-          aria-hidden="true"
-          className="animate-spin-slow absolute left-1/2 top-1/2 -z-10 hidden h-[24rem] w-[24rem] -translate-x-1/2 -translate-y-1/2 rounded-full border border-dashed border-ink/12 sm:block"
-        />
-        <div
-          aria-hidden="true"
-          className="hero-dots absolute -left-8 top-10 -z-10 hidden h-20 w-20 opacity-60 sm:block"
-        />
-
-        <div aria-hidden="true" className="hero-arch-frame -z-10" />
-
-        <div className="hero-arch">
-          <img
-            src={profile.portrait}
-            alt={`Foto ${profile.name}`}
-            width="480"
-            height="640"
-            loading="eager"
-            onError={(e) => {
-              e.currentTarget.style.display = 'none';
-              e.currentTarget.parentElement?.nextElementSibling?.removeAttribute('hidden');
-            }}
-          />
-        </div>
-
-        <div hidden className="hero-arch grid place-items-center bg-ink/5 text-center text-sm font-medium text-muted">
-          Taruh potret di
-          <br />
-          <code className="text-accent">/assets/randi-cutout.png</code>
-        </div>
-
-        <span
-          aria-hidden="true"
-          className="absolute -right-4 -top-4 z-20 grid h-11 w-11 place-items-center rounded-full bg-accent text-white shadow-md"
-        >
-          <Spark size={20} />
-        </span>
+      {/* Baris 2: OUTLINE hitam */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: reduced ? 0.15 : 0.5, delay: reduced ? 0 : 0.05 }}
+        className="hero-giant hero-giant-outline"
+      >
+        {hero.lineOutline}
       </motion.div>
     </div>
   );
 }
 
-function FloatingChips({ parallax }) {
+// --- Foto dalam kartu ala polaroid (dengan tilt 3D) ---
+function Cutout({ photoRef }) {
+  const tiltRef = useRef(null);
   const reduced = useReducedMotion();
-  if (reduced) return null;
+  const [canTilt, setCanTilt] = useState(false);
+
+  useEffect(() => {
+    const canHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    setCanTilt(canHover && !reduced);
+  }, [reduced]);
+
+  const onMove = (e) => {
+    if (!canTilt || !tiltRef.current) return;
+    const r = tiltRef.current.getBoundingClientRect();
+    const px = (e.clientX - r.left) / r.width - 0.5;
+    const py = (e.clientY - r.top) / r.height - 0.5;
+    const rotY = px * 12;
+    const rotX = -py * 12;
+    tiltRef.current.style.transform =
+      `perspective(1000px) rotateX(${rotX}deg) rotateY(${rotY}deg) scale(1.02)`;
+    tiltRef.current.style.transition = 'transform 100ms ease-out';
+  };
+
+  const reset = () => {
+    if (!tiltRef.current) return;
+    tiltRef.current.style.transform = '';
+    tiltRef.current.style.transition = 'transform 300ms ease-out';
+  };
+
   return (
-    <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-30 hidden sm:block">
-      {heroChips.map((chip) => (
-        <motion.span
-          key={chip.text}
-          style={{ ...chip.style, ...parallax.depth(chip.depth) }}
-          className={`absolute ${chip.pos}`}
+    <div
+      ref={tiltRef}
+      onMouseMove={onMove}
+      onMouseLeave={reset}
+      style={{ transformStyle: 'preserve-3d' }}
+    >
+      <div className="hero-polaroid relative">
+        <img
+          ref={photoRef}
+          src={profile.portrait}
+          alt="Foto Randi Nandika Danendra"
+          loading="eager"
+          width="520"
+          height="640"
+          className="hero-cutout relative z-10 select-none"
+          onError={(e) => {
+            e.currentTarget.style.display = 'none';
+            e.currentTarget.nextElementSibling?.removeAttribute('hidden');
+          }}
+        />
+        <div
+          hidden
+          className="hero-cutout grid place-items-center bg-ink/5 text-center text-[12px] font-medium text-muted"
         >
-          <span
-            className="hero-chip-float block whitespace-nowrap rounded-pill border border-line bg-white/90 px-3 py-1 font-mono text-[11px] font-medium text-ink shadow-md backdrop-blur"
-            style={{ animationDelay: chip.delay }}
-          >
-            {chip.text}
+          Taruh foto di
+          <br />
+          <code className="text-accent">/assets/randi-cutout.png</code>
+        </div>
+        <span className="hero-polaroid-caption">Surabaya, 2026</span>
+      </div>
+    </div>
+  );
+}
+
+// Anotasi gaya chart: garis + titik + label, muncul berurutan (di sisi kanan kolom teks, dekat foto).
+function Annotations({ reduced }) {
+  const items = [
+    { label: hero.anotasi[0], top: '14%', delay: 0.9 },
+    { label: hero.anotasi[1], top: '38%', delay: 1.05 },
+    { label: hero.anotasi[2], top: '62%', delay: 1.2 },
+    { label: hero.anotasi[3], top: '86%', delay: 1.35 },
+  ];
+  return (
+    <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-30 hidden xl:block">
+      {items.map((a, i) => (
+        <motion.div
+          key={i}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.4, delay: reduced ? 0 : a.delay }}
+          className="absolute right-0 flex translate-x-[calc(100%+0.75rem)] items-center gap-2"
+          style={{ top: a.top }}
+        >
+          <svg width="40" height="10" viewBox="0 0 40 10" className="text-muted">
+            <circle cx="3" cy="5" r="3" fill="var(--color-accent)" />
+            <line x1="6" y1="5" x2="40" y2="5" stroke="currentColor" strokeWidth="1" className="hero-anno-line" style={{ animationDelay: `${a.delay}s` }} />
+          </svg>
+          <span className="whitespace-nowrap rounded-pill border border-line bg-white/85 px-2.5 py-1 font-mono text-[12px] text-ink shadow-sm backdrop-blur">
+            {a.label}
           </span>
-        </motion.span>
+        </motion.div>
       ))}
     </div>
   );
 }
 
-function useParallax(strength = 1) {
-  const reduced = useReducedMotion();
-  const [offset, setOffset] = useState({ x: 0, y: 0 });
+// Chip data menepi.
+function DataChips({ reduced }) {
+  const chips = [
+    { text: hero.chips[0], pos: 'left-[4%] top-[26%]' },
+    { text: hero.chips[1], pos: 'right-[5%] top-[46%]' },
+    { text: hero.chips[2], pos: 'left-[7%] bottom-[24%]' },
+  ];
+  if (reduced) return null;
+  return (
+    <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-30 hidden lg:block">
+      {chips.map((c, i) => (
+        <span
+          key={c.text}
+          className={`hero-chip-float absolute ${c.pos} rounded-pill border border-line bg-white/80 px-3 py-1 font-mono text-[11px] text-muted shadow-sm backdrop-blur`}
+          style={{ animationDelay: `${i * 0.7}s` }}
+        >
+          {c.text}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+// Scanner reticle mengikuti kursor, mengunci ke foto saat dekat.
+function Reticle({ targetRef, enabled }) {
+  const [pos, setPos] = useState({ x: -200, y: -200 });
+  const [locked, setLocked] = useState(false);
+  const [show, setShow] = useState(false);
+  const raf = useRef(0);
 
   useEffect(() => {
-    if (reduced) return;
-    if (!window.matchMedia('(pointer: fine)').matches) return;
-    let raf;
+    if (!enabled) return;
     const onMove = (e) => {
-      cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(() => {
+      cancelAnimationFrame(raf.current);
+      raf.current = requestAnimationFrame(() => {
+        setPos({ x: e.clientX, y: e.clientY });
+        const el = targetRef.current;
+        let near = false;
+        if (el) {
+          const r = el.getBoundingClientRect();
+          near = e.clientX > r.left - 120 && e.clientX < r.right + 120 &&
+            e.clientY > r.top - 120 && e.clientY < r.bottom + 120;
+        }
+        setLocked(near);
+        setShow(true);
+      });
+    };
+    window.addEventListener('mousemove', onMove);
+    return () => {
+      window.removeEventListener('mousemove', onMove);
+      cancelAnimationFrame(raf.current);
+    };
+  }, [enabled, targetRef]);
+
+  if (!enabled || !show) return null;
+
+  const size = locked ? 132 : 46;
+
+  return (
+    <div
+      aria-hidden="true"
+      className="pointer-events-none fixed z-[60] hidden text-accent lg:block"
+      style={{ left: pos.x, top: pos.y, transform: 'translate(-50%, -50%)' }}
+    >
+      <div
+        className="hero-reticle relative"
+        style={{ width: size, height: size }}
+      >
+        {/* sudut-sudut kotak */}
+        {['left-0 top-0 border-l-2 border-t-2', 'right-0 top-0 border-r-2 border-t-2', 'left-0 bottom-0 border-l-2 border-b-2', 'right-0 bottom-0 border-r-2 border-b-2'].map((c) => (
+          <span key={c} className={`absolute h-3 w-3 ${c}`} />
+        ))}
+        {locked && (
+          <span className="absolute -bottom-7 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-pill bg-ink px-2.5 py-1 font-mono text-[11px] text-white">
+            Randi · Data Scientist
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// Baris peran dengan efek decode/scramble.
+function DecodeRole({ reduced }) {
+  const phrases = hero.peran.rotasi;
+  const [index, setIndex] = useState(0);
+  const [text, setText] = useState(phrases[0]);
+
+  useEffect(() => {
+    if (reduced) {
+      setText(phrases[0]);
+      return;
+    }
+
+    const target = phrases[index];
+    const chars = 'abcdefghijklmnopqrstuvwxyz0123456789_';
+    let frame = 0;
+    let raf = 0;
+    let holdTimer = 0;
+
+    const step = () => {
+      frame += 1;
+      if (frame >= target.length) {
+        setText(target);
+        holdTimer = window.setTimeout(() => {
+          setIndex((i) => (i + 1) % phrases.length);
+        }, 2600);
+        return;
+      }
+      const revealed = target.slice(0, frame);
+      const noise = target
+        .slice(frame)
+        .split('')
+        .map((ch) => (ch === ' ' ? ' ' : chars[Math.floor(Math.random() * chars.length)]))
+        .join('');
+      setText(revealed + noise);
+      raf = window.setTimeout(step, 45);
+    };
+
+    raf = window.setTimeout(step, 45);
+
+    return () => {
+      clearTimeout(raf);
+      clearTimeout(holdTimer);
+    };
+  }, [index, phrases, reduced]);
+
+  return (
+    <p className="font-mono text-[12px] text-muted sm:text-[13px]" aria-live="polite">
+      <span className="text-accent">{hero.peran.prefix}</span> {text}
+    </p>
+  );
+}
+
+// Parallax halus foto vs teks (berlawanan arah).
+function useParallax(enabled) {
+  const [offset, setOffset] = useState({ x: 0, y: 0 });
+  const raf = useRef(0);
+
+  useEffect(() => {
+    if (!enabled) return;
+    const onMove = (e) => {
+      cancelAnimationFrame(raf.current);
+      raf.current = requestAnimationFrame(() => {
         setOffset({
           x: e.clientX / window.innerWidth - 0.5,
           y: e.clientY / window.innerHeight - 0.5,
@@ -127,166 +299,116 @@ function useParallax(strength = 1) {
     window.addEventListener('mousemove', onMove);
     return () => {
       window.removeEventListener('mousemove', onMove);
-      cancelAnimationFrame(raf);
+      cancelAnimationFrame(raf.current);
     };
-  }, [reduced]);
+  }, [enabled]);
 
-  return { x: offset.x * strength, y: offset.y * strength };
+  return offset;
 }
 
 export default function Hero() {
-  const [statProjects, statF1] = hero.stats;
-  const mouse = useParallax();
   const navigate = useNavigate();
   const reduced = useReducedMotion();
+  const [desktop, setDesktop] = useState(false);
+  const photoRef = useRef(null);
 
-  const parallax = {
-    depth: (px) => ({
-      transform: `translate3d(${mouse.x * px}px, ${mouse.y * px}px, 0)`,
-      transition: 'transform 0.4s cubic-bezier(0.22, 1, 0.36, 1)',
-    }),
-  };
+  useEffect(() => {
+    const mq = window.matchMedia('(pointer: fine) and (min-width: 1024px)');
+    const update = () => setDesktop(mq.matches && !reduced);
+    update();
+    mq.addEventListener('change', update);
+    return () => mq.removeEventListener('change', update);
+  }, [reduced]);
+
+  const offset = useParallax(desktop);
+  const photoStyle = desktop
+    ? { transform: `translate3d(${offset.x * 10}px, ${offset.y * 8}px, 0)` }
+    : undefined;
+  const textStyle = desktop
+    ? { transform: `translate3d(${offset.x * -4}px, ${offset.y * -3}px, 0)` }
+    : undefined;
 
   return (
     <section
       id="beranda"
-      className="relative flex min-h-[100vh] flex-col justify-center overflow-x-clip bg-paper pb-6"
-      style={{ minHeight: '100svh', paddingTop: 'var(--nav-h)' }}
+      className="relative flex min-h-[100svh] flex-col items-center justify-center overflow-x-clip bg-paper px-5 pb-6 pt-[var(--nav-h)]"
     >
+      {/* Pola titik samar */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 opacity-[0.45]"
+        className="pointer-events-none absolute inset-0 opacity-[0.4]"
         style={{
-          backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(17,17,17,0.14) 1px, transparent 0)',
-          backgroundSize: '28px 28px',
+          backgroundImage:
+            'radial-gradient(circle at 1px 1px, rgba(17,17,17,0.12) 1px, transparent 0)',
+          backgroundSize: '26px 26px',
         }}
       />
 
-      <div className="relative mx-auto w-full max-w-7xl px-6 md:px-10">
-        <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-10">
-          {/* Kolom kiri */}
-          <div className="relative z-30 min-w-0">
-            <motion.span
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6, duration: 0.5 }}
-              className="inline-flex items-center gap-2 rounded-pill border border-ink/15 px-4 py-1.5 text-sm font-semibold"
-            >
-              {hero.badge}
-              <svg width="26" height="14" viewBox="0 0 26 14" fill="none" aria-hidden="true">
-                <path d="M1 8c5-6 12-7 24-6M21 1l4 1-2 4" stroke="#FF4B1F" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </motion.span>
+      {/* Konten utama: 2 kolom di lg (teks kiri, foto kanan) */}
+      <div className="relative z-20 grid w-full max-w-6xl grid-cols-1 items-center gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-6">
+        {/* KIRI: keterangan */}
+        <div className="flex flex-col items-center text-center lg:items-start lg:text-left">
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: reduced ? 0 : 0.15 }}
+            className="max-w-xl text-[15px] leading-[1.6] text-muted sm:text-[17px]"
+          >
+            Halo, saya <span className="font-semibold text-ink">Randi</span>, mahasiswa Sains Data Terapan yang tertarik pada analisis data dan machine learning.
+          </motion.p>
 
-            <h1 className="hero-heading mt-4 text-left text-ink">
-              <span className="hero-word" style={{ animationDelay: '0.6s' }}>{hero.headingLead}</span>{' '}
-              <span className="hero-word relative inline-block text-accent" style={{ animationDelay: '0.72s' }}>
-                {hero.headingName}
-                <HandUnderline />
-              </span>
-              <br />
-              <span className="hero-word" style={{ animationDelay: '0.84s' }}>Data</span>{' '}
-              <span className="hero-word relative inline-block" style={{ animationDelay: '0.96s' }}>
-                Scientist
-                <HandUnderline />
-              </span>
-            </h1>
+          {/* Blok teks raksasa */}
+          <div className="relative mt-4 w-full" style={textStyle}>
+            <div className="relative w-full">
+              <GiantLines reduced={reduced} />
+            </div>
+            <Annotations reduced={reduced} />
+          </div>
 
-            <p className="mt-4 min-h-[2.4em] max-w-xl text-base font-medium text-muted sm:text-lg">
-              <Typewriter phrases={rotatingPhrases} />
-            </p>
+          {/* Baris peran dengan decode */}
+          <div className="relative z-40 mt-4">
+            <DecodeRole reduced={reduced} />
+          </div>
 
-            {/* Tombol di kolom kiri */}
-            <div className="relative mt-6 flex flex-wrap items-center gap-3">
-              <div className="relative">
-                <Magnetic>
-                  <Pill as="button" type="button" variant="solid" data-cursor="Buka" onClick={() => navigate('/proyek')}>
-                    {hero.ctaPrimary}
-                    <ArrowIcon size={16} />
-                  </Pill>
-                </Magnetic>
-                <svg
-                  aria-hidden="true"
-                  className="pointer-events-none absolute -right-4 -top-8 hidden text-accent sm:block"
-                  width="56"
-                  height="38"
-                  viewBox="0 0 60 40"
-                  fill="none"
-                >
-                  <path d="M58 36C46 34 30 30 14 10M14 10l-2 12M14 10l11 3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </div>
-              <Pill as="button" type="button" variant="outline" data-cursor="Buka" onClick={() => navigate('/kontak')}>
+          {/* Tombol: kiri-bawah & kanan-bawah di dalam kolom teks */}
+          <div className="relative z-40 mt-6 flex w-full max-w-md flex-wrap items-center justify-center gap-3 lg:justify-start">
+            <Magnetic>
+              <Pill
+                as="button"
+                type="button"
+                variant="solid"
+                data-cursor="lihat"
+                onClick={() => navigate('/proyek')}
+              >
+                {hero.ctaPrimary}
+                <ArrowIcon size={16} />
+              </Pill>
+            </Magnetic>
+            <Magnetic>
+              <Pill
+                as="button"
+                type="button"
+                variant="outline"
+                data-cursor="kontak"
+                onClick={() => navigate('/kontak')}
+              >
                 {hero.ctaSecondary}
                 <ArrowRight size={16} />
               </Pill>
-            </div>
-
-            {/* Kartu kutipan + statistik 3, ringkas */}
-            <div className="mt-6 flex flex-wrap items-stretch gap-4">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 1.05, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                style={{ transform: 'rotate(-1.5deg)' }}
-                className="max-w-[23.75rem] flex-1 rounded-card border border-line bg-white p-5 shadow-lg shadow-ink/5"
-              >
-                <QuoteIcon className="text-accent" size={22} />
-                <p className="mt-2 text-sm font-medium leading-relaxed text-ink">
-                  “{hero.quote}”
-                </p>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 1.15, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                className="flex shrink-0 flex-col justify-center rounded-card border border-line bg-white px-5 py-4 shadow-sm"
-              >
-                <span className="font-display text-3xl text-ink">
-                  <Counter value={statProjects.value} />
-                </span>
-                <span className="mt-1 max-w-[7rem] text-xs font-medium leading-snug text-muted">
-                  {statProjects.label}
-                </span>
-              </motion.div>
-            </div>
+            </Magnetic>
           </div>
+        </div>
 
-          {/* Kolom kanan: foto */}
-          <div className="relative z-10 min-w-0">
-            <div className="relative mx-auto w-full max-w-[22rem]">
-              <Portrait parallax={parallax} />
-              <FloatingChips parallax={parallax} />
-            </div>
-
-            {/* Kartu 80% menempel pojok kanan-bawah foto */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.2, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-              style={{ transform: 'rotate(2deg)' }}
-              className="relative z-30 mx-auto mt-4 w-52 rounded-card border border-line bg-white p-4 shadow-lg shadow-ink/5 lg:absolute lg:-bottom-2 lg:right-0 lg:mx-0 lg:mt-0"
-            >
-              <span className="font-display text-3xl text-ink">
-                <Counter value={statF1.value} suffix={statF1.suffix} />
-              </span>
-              <div className="mt-2 border-t border-line pt-2">
-                <p className="text-[11px] font-medium leading-snug text-muted">{statF1.label}</p>
-              </div>
-              <div className="mt-2 flex gap-1 text-accent" aria-label="5 dari 5 bintang">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <svg key={i} width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                    <path d="M12 2l2.9 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77 5.82 21l1.18-6.88-5-4.87 7.1-1.01L12 2z" />
-                  </svg>
-                ))}
-              </div>
-            </motion.div>
+        {/* KANAN: foto cutout */}
+        <div className="relative flex justify-center lg:justify-end">
+          <div className="relative pointer-events-auto" style={photoStyle}>
+            <Cutout photoRef={photoRef} />
+            <DataChips reduced={reduced} />
           </div>
         </div>
       </div>
 
-      {/* Petunjuk scroll */}
+      {/* Penanda scroll */}
       {!reduced && (
         <motion.div
           aria-hidden="true"
@@ -300,6 +422,8 @@ export default function Hero() {
           </svg>
         </motion.div>
       )}
+
+      <Reticle targetRef={photoRef} enabled={desktop} />
     </section>
   );
 }

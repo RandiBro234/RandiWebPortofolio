@@ -44,7 +44,7 @@ function Entry({ item, index, open, onToggle }) {
             type="button"
             onClick={onToggle}
             aria-expanded={open}
-            data-cursor="Lihat"
+            data-cursor="lihat"
             className={cn('w-full', !isCurrent && left && 'md:text-right', 'text-left')}
           >
             <div className={cn('flex items-center gap-2', !isCurrent && left ? 'md:justify-end' : '')}>
@@ -89,7 +89,7 @@ function Entry({ item, index, open, onToggle }) {
               {item.projectSlug && (
                 <Link
                   to={`/proyek/${item.projectSlug}`}
-                  data-cursor="Buka"
+                  data-cursor="buka"
                   className="mt-3 inline-flex items-center gap-1.5 rounded-pill bg-ink px-3.5 py-2 text-[13px] font-semibold text-white transition-colors hover:bg-accent"
                 >
                   Lihat proyek
@@ -153,7 +153,7 @@ export default function Journey() {
         <a
           href={profile.cvPath}
           download
-          data-cursor="Unduh"
+          data-cursor="unduh"
           className="inline-flex items-center gap-2 rounded-pill bg-accent px-6 py-3 text-[15px] font-semibold text-white transition-all hover:-translate-y-px hover:bg-[#e63f16]"
         >
           Unduh CV

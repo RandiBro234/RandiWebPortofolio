@@ -50,7 +50,7 @@ function ServiceCard({ card, index }) {
     <Reveal delay={index * 90} className="h-full">
       <Link
         to={card.to}
-        data-cursor="Buka"
+        data-cursor="buka"
         className={cn(
           'group flex h-full flex-col rounded-card p-5 transition-transform duration-300 hover:-translate-y-1 hover:rotate-[-1deg] md:p-6',
           featured ? 'bg-accent text-white' : 'bg-ink-soft text-white',

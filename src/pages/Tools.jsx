@@ -27,7 +27,7 @@ function ToolCard({ tool }) {
 
   return (
     <div
-      data-cursor="Buka"
+      data-cursor="buka"
       onClick={() => usedIn.length > 0 && setOpen((v) => !v)}
       className={cn(
         'relative rounded-card border border-line bg-white p-4 transition-transform duration-200',
@@ -58,7 +58,7 @@ function ToolCard({ tool }) {
                   key={p.id}
                   to={`/proyek/${p.id}`}
                   onClick={(e) => e.stopPropagation()}
-                  data-cursor="Buka"
+                  data-cursor="buka"
                   className="rounded-pill bg-accent/10 px-2.5 py-0.5 text-[12px] font-medium text-accent hover:bg-accent hover:text-white"
                 >
                   {p.title}

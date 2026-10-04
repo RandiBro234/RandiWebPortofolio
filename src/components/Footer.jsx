@@ -1,5 +1,6 @@
 import { footer, profile } from '../data/content';
 import { ArrowIcon } from './icons';
+import LogoMark from './LogoMark';
 
 const socials = [
   { label: 'Email', href: `mailto:${profile.email}` },
@@ -14,8 +15,8 @@ export default function Footer() {
       <div className="mx-auto flex max-w-6xl flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <span className="grid h-8 w-8 place-items-center rounded-full bg-accent font-display text-[13px] font-extrabold text-white">
-              R
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent">
+              <LogoMark className="h-4 w-4 text-white" />
             </span>
             <span className="font-display text-[15px] font-bold text-white">
               {profile.name}
