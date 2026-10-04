@@ -1,4 +1,4 @@
-// Semua teks konten website ada di file ini agar mudah diedit.
+﻿// Semua teks konten website ada di file ini agar mudah diedit.
 
 export const profile = {
   name: "Randi Nandika Danendra",
@@ -21,7 +21,7 @@ export const profile = {
 export const rotatingPhrases = [
   "yang memprediksi kerusakan mesin",
   "yang merekomendasikan distribusi tenaga kesehatan",
-  "yang memprediksi hujan esok hari",
+  "yang memprediksi hujan besok",
   "yang menilai jawaban wawancara secara otomatis",
   "yang mendeteksi anomali kualitas udara",
 ];
@@ -32,7 +32,7 @@ export const hero = {
   headingName: "Randi",
   headingTail: ", Data Scientist",
   quote:
-    "Saya mengubah data berantakan menjadi model dan insight yang bisa dipakai mengambil keputusan.",
+    "Saya mengubah data berantakan menjadi model dan insight yang bisa dipakai untuk mengambil keputusan.",
   stats: [
     { value: 5, suffix: "", label: "Proyek" },
     { value: 80, suffix: "%", label: "F1-Score Model Predictive Maintenance" },
@@ -87,7 +87,7 @@ export const journey = {
         "Merapikan data dan membangun pipeline yang bisa diulang: menangani nilai kosong, menyelaraskan tipe, dan menyiapkan fitur yang bersih sebelum dipakai model.",
       project:
         "Contoh: AustraliaRainPrediction, preprocessing dan feature engineering dari data cuaca WeatherAUS; JobifyAI, text mining Bahasa Indonesia.",
-      linkSlug: "jobifyai",
+      linkSlug: "australia-rain-prediction",
       visual: "clean",
     },
     {
@@ -108,7 +108,7 @@ export const journey = {
       narrative:
         "Feature engineering, pemilihan model, dan evaluasi. Saya tidak berhenti di satu algoritma tanpa membandingkannya.",
       project:
-        "Contoh: AustraliaRainPrediction, perbandingan CatBoost, XGBoost, dan Random Forest, hyperparameter tuning, lalu optimasi threshold.",
+        "Contoh: AustraliaRainPrediction, perbandingan CatBoost, XGBoost, Linear Regression, dan Random Forest, hyperparameter tuning, lalu optimasi threshold.",
       linkSlug: "australia-rain-prediction",
       visual: "model",
     },
@@ -193,7 +193,7 @@ export const projects = [
     period: "Mei–Juni 2026",
     categories: ["Sistem Rekomendasi"],
     summary:
-      "Sistem rekomendasi hybrid untuk memprioritaskan distribusi tenaga kesehatan antarwilayah.",
+      "Sistem rekomendasi hybrid untuk memprioritaskan distribusi tenaga kesehatan antar wilayah.",
     question:
       "Provinsi mana yang paling perlu diprioritaskan dalam distribusi tenaga kesehatan?",
     approach: [
@@ -226,7 +226,7 @@ export const projects = [
     period: "Juli 2026",
     categories: ["Machine Learning"],
     summary:
-      "Proyek machine learning end-to-end untuk memprediksi hujan keesokan hari memakai dataset WeatherAUS.",
+      "Proyek machine learning end-to-end untuk memprediksi hujan besok memakai dataset WeatherAUS.",
     question:
       "Apakah besok akan hujan di Australia, berdasarkan data cuaca hari ini?",
     approach: [
@@ -256,7 +256,7 @@ export const projects = [
     name: "JobifyAI",
     role: "Full Stack Developer",
     context: "NLP",
-    period: "September – November 2025",
+    period: "September–November 2025",
     categories: ["NLP"],
     summary:
       "Aplikasi simulasi wawancara kerja berbasis Flask yang menilai jawaban secara otomatis menggunakan TF-IDF, cosine similarity, dan text mining Bahasa Indonesia.",
@@ -289,7 +289,7 @@ export const projects = [
     name: "AIRWISE",
     role: "Full Stack Developer",
     context: "Monitoring",
-    period: "Juni – Juli 2026",
+    period: "Juni–Juli 2026",
     categories: ["Machine Learning", "Monitoring"],
     summary:
       "Platform pemantauan kualitas udara real-time dengan deteksi anomali berbasis AI (Isolation Forest) untuk memberikan saran kesehatan yang cerdas.",
@@ -321,7 +321,7 @@ export const services = {
   title: "Apa yang Saya",
   titleAccent: "Kerjakan",
   subtitle:
-    "Fokus utama saya Data Scientist, dengan kemampuan pendukung di analisis data dan data engineering agar solusinya bisa jalan end-to-end.",
+    "Fokus utama saya adalah Data Scientist, dengan kemampuan pendukung di analisis data dan data engineering agar solusinya bisa jalan end-to-end.",
   cards: [
     {
       no: "01",
@@ -372,7 +372,7 @@ export const timeline = {
     },
     {
       type: "work",
-      period: "September – November 2025",
+      period: "September–November 2025",
       title: "Full Stack Developer",
       subtitle: "JobifyAI",
       projectSlug: "jobifyai",
@@ -412,7 +412,7 @@ export const timeline = {
     },
     {
       type: "work",
-      period: "Juni – Juli 2026",
+      period: "Juni–Juli 2026",
       title: "Full Stack Developer",
       subtitle: "AIRWISE",
       projectSlug: "airwise",

@@ -31,8 +31,14 @@ function PageFallback() {
   );
 }
 
-// Waktu (ms) sinkron dengan keyframes PageTransition.
-const COVER_MS = 300;
+// Waktu (ms) sinkron dengan keyframes PageTransition (desktop 0.9s, mobile 0.7s).
+function transitionTimings() {
+  const mobile =
+    typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches;
+  return mobile
+    ? { cover: 252, total: 700 }
+    : { cover: 288, total: 900 };
+}
 
 export default function App() {
   const location = useLocation();
@@ -58,6 +64,7 @@ export default function App() {
       return;
     }
 
+    const { cover, total } = transitionTimings();
     setPanelLabel(routeLabel(location.pathname));
     setShowPanel(true);
 
@@ -66,9 +73,9 @@ export default function App() {
         setDisplayLocation(location);
         window.scrollTo({ top: 0, behavior: 'auto' });
       },
-      reduced ? 100 : COVER_MS,
+      reduced ? 100 : cover,
     );
-    const t2 = setTimeout(() => setShowPanel(false), reduced ? 220 : 900);
+    const t2 = setTimeout(() => setShowPanel(false), reduced ? 220 : total);
 
     return () => {
       clearTimeout(t1);
