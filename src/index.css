@@ -13,7 +13,7 @@
   --font-display: "Bricolage Grotesque", "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-sans: "Inter", "DM Sans", ui-sans-serif, system-ui, sans-serif;
 
-  --nav-h: 72px;
+  --nav-h: 88px;
 
   /* Sistem ukuran section (selain hero & navbar). */
   --section-y: 4rem;          /* py-16 */
@@ -110,10 +110,34 @@
   padding-bottom: var(--section-y);
 }
 
+/* Klik menu navbar mendarat rapi (tidak tertutup navbar). */
+section[id] {
+  scroll-margin-top: var(--nav-h);
+}
+
 @media (min-width: 768px) {
   .section {
     padding-top: 6rem;
     padding-bottom: 6rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --nav-h: 112px;
+  }
+}
+
+/* Hero: ruang tengah = tinggi layar - navbar. */
+.hero-section {
+  padding-top: var(--nav-h);
+  padding-bottom: 32px;
+}
+
+/* Panah scroll: sembunyikan di layar pendek (<720px). */
+@media (max-height: 719px) {
+  .hero-scroll-arrow {
+    display: none !important;
   }
 }
 
@@ -208,11 +232,6 @@
   to { stroke-dashoffset: 0; }
 }
 
-@keyframes anno-draw {
-  from { stroke-dashoffset: 200; }
-  to { stroke-dashoffset: 0; }
-}
-
 @keyframes spin-slow {
   to { transform: rotate(360deg); }
 }
@@ -267,6 +286,19 @@
   color: #1a1a1a;
 }
 
+/* Varian 2 baris untuk layar sangat kecil. */
+.hero-giant-wrapped {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-stretch: normal;
+  text-transform: uppercase;
+  letter-spacing: -0.03em;
+  line-height: 0.95;
+  white-space: normal;
+  margin: 0;
+}
+
 /* Kursor ketik berkedip. */
 @keyframes type-blink {
   0%, 50% { opacity: 1; }
@@ -314,37 +346,6 @@
   box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.5);
 }
 
-/* Badge status berdenyut halus tiap 2 detik. */
-@keyframes status-pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.4; transform: scale(1.4); }
-}
-
-.idstatus-dot {
-  animation: status-pulse 2s ease-in-out infinite;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .idstatus-dot { animation: none; }
-}
-
-/* Kilau menyapu pada bar status (tiap 3 detik). */
-@keyframes status-shine {
-  0% { transform: translateX(-120%); }
-  60%, 100% { transform: translateX(320%); }
-}
-
-.status-shine {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: 40%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.45), transparent);
-  animation: status-shine 3s ease-in-out infinite;
-  pointer-events: none;
-}
-
 /* Marquee strip footer kartu (20s, pause saat hover). */
 @keyframes footer-scroll {
   from { transform: translateX(0); }
@@ -361,7 +362,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .status-shine,
   .footer-marquee {
     animation: none;
   }
@@ -414,66 +414,9 @@
   }
 }
 
-/* Reticle scanner mengikuti kursor. */
-.hero-reticle {
-  transition: width 0.22s ease, height 0.22s ease, opacity 0.2s ease;
-}
-
-/* Garis anotasi gaya chart. */
-.hero-anno-line {
-  stroke-dasharray: 200;
-  animation: anno-draw 0.6s cubic-bezier(0.65, 0, 0.35, 1) both;
-}
-
-/* Kursor kustom: satu lingkaran; penuh oranye + label di dalam saat hover. */
-.cursor-blob {
-  width: 22px;
-  height: 22px;
-  border: 1.5px solid rgba(255, 75, 31, 0.7);
-  background-color: transparent;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  transition: width 0.2s ease, height 0.2s ease, background-color 0.2s ease,
-    opacity 0.2s ease;
-}
-
-.cursor-blob[data-hover='true'] {
-  width: 64px;
-  height: 64px;
-  background-color: #ff4b1f;
-  border-color: #ff4b1f;
-}
-
-.cursor-blob__text {
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  color: #fff;
-  opacity: 0;
-  transition: opacity 0.15s ease;
-  user-select: none;
-  line-height: 1;
-}
-
-.cursor-blob[data-hover='true'] .cursor-blob__text {
-  opacity: 1;
-}
-
 /* Panah ikon pada kartu contoh: bergeser ke atas-kanan saat hover. */
 .example-card:hover .example-card__arrow {
   transform: translate(2px, -2px);
-}
-
-/* Sembunyikan kursor bawaan sepenuhnya, hanya di perangkat dengan mouse presisi. */
-@media (hover: hover) and (pointer: fine) {
-  html,
-  body,
-  * {
-    cursor: none;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {

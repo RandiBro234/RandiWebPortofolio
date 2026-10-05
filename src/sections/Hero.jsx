@@ -9,7 +9,8 @@ import IdCard from '../components/IdCard';
 import { useReducedMotion } from '../hooks';
 
 // --- FitText: skala font agar lebar teks persis = lebar target. ---
-function FitText({ text, targetRef, className }) {
+// `wrapBelow`: jika font-size hasil < nilai ini, teks dipecah jadi 2 baris (mobile).
+function FitText({ text, targetRef, className, wrapBelow = 0, wrapAfter = '' }) {
   const ref = useRef(null);
   const [size, setSize] = useState(null);
 
@@ -46,6 +47,22 @@ function FitText({ text, targetRef, className }) {
     };
   }, [text, targetRef, className]);
 
+  // Mode 2 baris untuk mobile saat font terlalu kecil.
+  const wrap = wrapBelow > 0 && size !== null && size < wrapBelow && wrapAfter;
+  if (wrap) {
+    const [a, b] = text.split(wrapAfter);
+    return (
+      <span
+        ref={ref}
+        className={`${className} hero-giant-wrapped`}
+        style={size ? { fontSize: `${size}px` } : { visibility: 'hidden' }}
+      >
+        <span className="block">{a.trim()}</span>
+        <span className="block">{wrapAfter}{b}</span>
+      </span>
+    );
+  }
+
   return (
     <span
       ref={ref}
@@ -62,7 +79,7 @@ function GiantLines({ reduced }) {
   const line1Ref = useRef(null);
 
   return (
-    <div className="relative z-20 flex flex-col gap-2 select-none">
+    <div className="relative z-20 flex flex-col gap-3 select-none">
       <h1 className="sr-only">
         {hero.lineSolid} — {hero.lineOutline}
       </h1>
@@ -79,106 +96,19 @@ function GiantLines({ reduced }) {
         animate={{ opacity: 1 }}
         transition={{ duration: reduced ? 0.15 : 0.5, delay: reduced ? 0 : 0.15 }}
       >
-        <FitText text={hero.lineOutline} targetRef={line1Ref} className="hero-giant-outline" />
+        <FitText
+          text={hero.lineOutline}
+          targetRef={line1Ref}
+          className="hero-giant-outline"
+          wrapBelow={18}
+          wrapAfter="INTO "
+        />
       </motion.div>
     </div>
   );
 }
 
 // --- (Kartu polaroid lama diganti <IdCard />) ---
-
-// Anotasi gaya chart: garis + titik + label, muncul berurutan (di sisi kanan kolom teks, dekat foto).
-function Annotations({ reduced }) {
-  const items = [
-    { label: hero.anotasi[0], top: '14%', delay: 0.9 },
-    { label: hero.anotasi[1], top: '38%', delay: 1.05 },
-    { label: hero.anotasi[2], top: '62%', delay: 1.2 },
-    { label: hero.anotasi[3], top: '86%', delay: 1.35 },
-  ];
-  return (
-    <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-30 hidden xl:block">
-      {items.map((a, i) => (
-        <motion.div
-          key={i}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.4, delay: reduced ? 0 : a.delay }}
-          className="absolute right-0 flex translate-x-[calc(100%+0.75rem)] items-center gap-2"
-          style={{ top: a.top }}
-        >
-          <svg width="40" height="10" viewBox="0 0 40 10" className="text-muted">
-            <circle cx="3" cy="5" r="3" fill="var(--color-accent)" />
-            <line x1="6" y1="5" x2="40" y2="5" stroke="currentColor" strokeWidth="1" className="hero-anno-line" style={{ animationDelay: `${a.delay}s` }} />
-          </svg>
-          <span className="whitespace-nowrap rounded-pill border border-line bg-white/85 px-2.5 py-1 font-mono text-[12px] text-ink shadow-sm backdrop-blur">
-            {a.label}
-          </span>
-        </motion.div>
-      ))}
-    </div>
-  );
-}
-
-// (Label data kini berada di dalam <IdCard />.)
-
-// Scanner reticle mengikuti kursor, mengunci ke foto saat dekat.
-function Reticle({ targetRef, enabled }) {
-  const [pos, setPos] = useState({ x: -200, y: -200 });
-  const [locked, setLocked] = useState(false);
-  const [show, setShow] = useState(false);
-  const raf = useRef(0);
-
-  useEffect(() => {
-    if (!enabled) return;
-    const onMove = (e) => {
-      cancelAnimationFrame(raf.current);
-      raf.current = requestAnimationFrame(() => {
-        setPos({ x: e.clientX, y: e.clientY });
-        const el = targetRef.current;
-        let near = false;
-        if (el) {
-          const r = el.getBoundingClientRect();
-          near = e.clientX > r.left - 120 && e.clientX < r.right + 120 &&
-            e.clientY > r.top - 120 && e.clientY < r.bottom + 120;
-        }
-        setLocked(near);
-        setShow(true);
-      });
-    };
-    window.addEventListener('mousemove', onMove);
-    return () => {
-      window.removeEventListener('mousemove', onMove);
-      cancelAnimationFrame(raf.current);
-    };
-  }, [enabled, targetRef]);
-
-  if (!enabled || !show) return null;
-
-  const size = locked ? 132 : 46;
-
-  return (
-    <div
-      aria-hidden="true"
-      className="pointer-events-none fixed z-[60] hidden text-accent lg:block"
-      style={{ left: pos.x, top: pos.y, transform: 'translate(-50%, -50%)' }}
-    >
-      <div
-        className="hero-reticle relative"
-        style={{ width: size, height: size }}
-      >
-        {/* sudut-sudut kotak */}
-        {['left-0 top-0 border-l-2 border-t-2', 'right-0 top-0 border-r-2 border-t-2', 'left-0 bottom-0 border-l-2 border-b-2', 'right-0 bottom-0 border-r-2 border-b-2'].map((c) => (
-          <span key={c} className={`absolute h-3 w-3 ${c}`} />
-        ))}
-        {locked && (
-          <span className="absolute -bottom-7 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-pill bg-ink px-2.5 py-1 font-mono text-[11px] text-white">
-            Randi · Data Scientist
-          </span>
-        )}
-      </div>
-    </div>
-  );
-}
 
 // Baris peran dengan efek typewriter.
 function Typewriter({ words, reduced }) {
@@ -280,7 +210,12 @@ export default function Hero() {
   return (
     <section
       id="beranda"
-      className="relative flex min-h-[100svh] flex-col items-center justify-center overflow-x-clip bg-paper px-5 pb-6 pt-[var(--nav-h)]"
+      className="hero-section relative flex min-h-[100svh] items-center justify-center overflow-x-clip bg-paper px-5"
+      style={{
+        minHeight: '100svh',
+        paddingTop: 'var(--nav-h)',
+        paddingBottom: '24px',
+      }}
     >
       {/* Pola titik samar */}
       <div
@@ -294,9 +229,9 @@ export default function Hero() {
       />
 
       {/* Konten utama: 2 kolom di lg (teks kiri, foto kanan) */}
-      <div className="relative z-20 grid w-full max-w-6xl grid-cols-1 items-center gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-6">
+      <div className="relative z-20 grid w-full max-w-6xl grid-cols-1 items-center gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-6 2xl:max-w-[1400px]">
         {/* KIRI: keterangan */}
-        <div className="flex flex-col items-center text-center lg:items-start lg:text-left">
+        <div className="hero-left flex flex-col items-center text-center lg:items-start lg:text-left">
           <motion.p
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -307,11 +242,10 @@ export default function Hero() {
           </motion.p>
 
           {/* Blok teks raksasa */}
-          <div className="relative mt-4 w-full xl:pr-8" style={textStyle}>
+          <div className="relative mt-4 w-full" style={textStyle}>
             <div className="relative w-full">
               <GiantLines reduced={reduced} />
             </div>
-            <Annotations reduced={reduced} />
           </div>
 
           {/* Baris peran dengan typewriter */}
@@ -349,10 +283,8 @@ export default function Hero() {
         </div>
 
         {/* KANAN: ID card dengan lanyard */}
-        <div className="relative flex justify-center pt-2 lg:justify-end">
-          <div className="pointer-events-auto">
-            <IdCard photoRef={photoRef} />
-          </div>
+        <div className="idcard-col relative flex w-full items-center justify-center">
+          <IdCard photoRef={photoRef} />
         </div>
       </div>
 
@@ -362,7 +294,7 @@ export default function Hero() {
           aria-hidden="true"
           animate={{ y: [0, 8, 0] }}
           transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
-          className="pointer-events-none absolute bottom-4 left-1/2 hidden -translate-x-1/2 text-muted lg:block"
+          className="hero-scroll-arrow pointer-events-none absolute bottom-4 left-1/2 hidden -translate-x-1/2 text-muted lg:block"
         >
           <svg width="22" height="30" viewBox="0 0 24 32" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
             <path d="M12 4v20" />
@@ -371,7 +303,6 @@ export default function Hero() {
         </motion.div>
       )}
 
-      <Reticle targetRef={photoRef} enabled={desktop} />
     </section>
   );
 }
