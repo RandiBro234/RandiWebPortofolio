@@ -1,4 +1,18 @@
-import { useEffect, useRef, useState } from 'react';
+import { createContext, useContext, useEffect, useRef, useState } from 'react';
+
+// Status animasi intro (preloader selesai / dilewati).
+export const IntroContext = createContext({ ready: true, stage: 0 });
+
+// ready: true saat tirai preloader mulai terbuka (animasi masuk hero dimulai).
+// stage: 0 = belum, 1 = siap (dipakai untuk jeda berurutan).
+export function useIntro() {
+  return useContext(IntroContext);
+}
+
+export function useIntroValue() {
+  const { ready, stage } = useContext(IntroContext);
+  return { ready, stage };
+}
 
 export function useReveal(options = {}) {
   const ref = useRef(null);

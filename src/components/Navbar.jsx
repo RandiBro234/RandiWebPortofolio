@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { nav, profile } from '../data/content';
 import LogoMark from './LogoMark';
 import Magnetic from './Magnetic';
+import { useIntro } from '../hooks';
 import { cn } from '../utils';
 
 function NavItem({ item, active, onClick }) {
@@ -32,6 +33,7 @@ function NavItem({ item, active, onClick }) {
 export default function Navbar({ onOpenPalette }) {
   const location = useLocation();
   const navigate = useNavigate();
+  const { ready } = useIntro();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const menuRef = useRef(null);
@@ -65,10 +67,15 @@ export default function Navbar({ onOpenPalette }) {
   };
 
   return (
-    <div ref={menuRef} className="fixed inset-x-0 top-3 z-[130] px-6 md:px-10">
+    <motion.div
+      ref={menuRef}
+      className="fixed inset-x-0 top-3 z-[130] px-6 md:px-10"
+      initial={false}
+      animate={ready ? { y: 0, opacity: 1 } : { y: '-100%', opacity: 0 }}
+      transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+    >
       <header className="mx-auto w-full max-w-7xl">
-        <nav
-          aria-label="Navigasi utama"
+        <nav          aria-label="Navigasi utama"
           data-scrolled={scrolled}
           className={cn(
             'nav-shell flex items-center justify-between rounded-full pl-2 pr-3 md:pl-3',
@@ -191,6 +198,6 @@ export default function Navbar({ onOpenPalette }) {
           </div>
         )}
       </header>
-    </div>
+    </motion.div>
   );
 }

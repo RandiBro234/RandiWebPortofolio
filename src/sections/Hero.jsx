@@ -6,7 +6,7 @@ import { ArrowIcon, ArrowRight } from '../components/icons';
 import Pill from '../components/Pill';
 import Magnetic from '../components/Magnetic';
 import IdCard from '../components/IdCard';
-import { useReducedMotion } from '../hooks';
+import { useIntro, useReducedMotion } from '../hooks';
 
 // --- FitText: skala font agar lebar teks persis = lebar target. ---
 // `wrapBelow`: jika font-size hasil < nilai ini, teks dipecah jadi 2 baris (mobile).
@@ -74,9 +74,19 @@ function FitText({ text, targetRef, className, wrapBelow = 0, wrapAfter = '' }) 
   );
 }
 
-// --- Headline 2 baris, lebarnya disejajarkan. ---
+// --- Headline 2 baris, lebarnya disejajarkan (mask reveal saat intro selesai). ---
 function GiantLines({ reduced }) {
   const line1Ref = useRef(null);
+  const { ready } = useIntro();
+
+  const lineMotion = (delay) =>
+    reduced
+      ? { initial: false, animate: { y: 0, opacity: 1 }, transition: { duration: 0.2 } }
+      : {
+          initial: { y: '110%' },
+          animate: ready ? { y: '0%' } : { y: '110%' },
+          transition: { duration: 0.7, delay, ease: [0.22, 1, 0.36, 1] },
+        };
 
   return (
     <div className="relative z-20 flex flex-col gap-3 select-none">
@@ -85,25 +95,24 @@ function GiantLines({ reduced }) {
       </h1>
 
       {/* Baris 1: acuan lebar */}
-      <div ref={line1Ref} className="w-full">
-        <FitText text={hero.lineSolid} targetRef={line1Ref} className="hero-giant-solid" />
+      <div ref={line1Ref} className="w-full overflow-hidden">
+        <motion.div {...lineMotion(0)}>
+          <FitText text={hero.lineSolid} targetRef={line1Ref} className="hero-giant-solid" />
+        </motion.div>
       </div>
 
       {/* Baris 2: disamakan lebar dengan baris 1 */}
-      <motion.div
-        className="w-full"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: reduced ? 0.15 : 0.5, delay: reduced ? 0 : 0.15 }}
-      >
-        <FitText
-          text={hero.lineOutline}
-          targetRef={line1Ref}
-          className="hero-giant-outline"
-          wrapBelow={18}
-          wrapAfter="INTO "
-        />
-      </motion.div>
+      <div className="w-full overflow-hidden">
+        <motion.div {...lineMotion(0.12)}>
+          <FitText
+            text={hero.lineOutline}
+            targetRef={line1Ref}
+            className="hero-giant-outline"
+            wrapBelow={18}
+            wrapAfter="INTO "
+          />
+        </motion.div>
+      </div>
     </div>
   );
 }
@@ -111,13 +120,13 @@ function GiantLines({ reduced }) {
 // --- (Kartu polaroid lama diganti <IdCard />) ---
 
 // Baris peran dengan efek typewriter.
-function Typewriter({ words, reduced }) {
+function Typewriter({ words, reduced, start = true }) {
   const [index, setIndex] = useState(0);
   const [text, setText] = useState('');
   const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
-    if (reduced) return;
+    if (reduced || !start) return;
 
     const current = words[index % words.length];
     const typing = !deleting;
@@ -142,7 +151,7 @@ function Typewriter({ words, reduced }) {
     }, delay);
 
     return () => clearTimeout(timer);
-  }, [text, deleting, index, words, reduced]);
+  }, [text, deleting, index, words, reduced, start]);
 
   if (reduced) {
     return (
@@ -191,6 +200,7 @@ function useParallax(enabled) {
 export default function Hero() {
   const navigate = useNavigate();
   const reduced = useReducedMotion();
+  const { ready } = useIntro();
   const [desktop, setDesktop] = useState(false);
   const photoRef = useRef(null);
 
@@ -206,6 +216,15 @@ export default function Hero() {
   const textStyle = desktop
     ? { transform: `translate3d(${offset.x * -4}px, ${offset.y * -3}px, 0)` }
     : undefined;
+
+  const reveal = (delay) =>
+    reduced
+      ? { initial: false, animate: { opacity: 1, y: 0 }, transition: { duration: 0.2 } }
+      : {
+          initial: { opacity: 0, y: 16 },
+          animate: ready ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 },
+          transition: { duration: 0.5, delay, ease: [0.22, 1, 0.36, 1] },
+        };
 
   return (
     <section
@@ -233,9 +252,7 @@ export default function Hero() {
         {/* KIRI: keterangan */}
         <div className="hero-left flex flex-col items-center text-center lg:items-start lg:text-left">
           <motion.p
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: reduced ? 0 : 0.15 }}
+            {...reveal(0.1)}
             className="max-w-xl text-[15px] leading-[1.6] text-muted sm:text-[17px]"
           >
             Halo, saya <span className="font-semibold text-ink">Randi</span>, mahasiswa Sains Data Terapan yang tertarik pada analisis data dan machine learning.
@@ -248,43 +265,47 @@ export default function Hero() {
             </div>
           </div>
 
-          {/* Baris peran dengan typewriter */}
+          {/* Baris peran dengan typewriter (mulai setelah intro) */}
           <div className="relative z-40 mt-3 min-h-[20px]">
-            <Typewriter words={hero.peran.roles} reduced={reduced} />
+            <Typewriter words={hero.peran.roles} reduced={reduced} start={ready} />
           </div>
 
           {/* Tombol: kiri-bawah & kanan-bawah di dalam kolom teks */}
           <div className="relative z-40 mt-6 flex w-full max-w-md flex-wrap items-center justify-center gap-3 lg:justify-start">
-            <Magnetic>
-              <Pill
-                as="button"
-                type="button"
-                variant="solid"
-                data-cursor="lihat"
-                onClick={() => navigate('/proyek')}
-              >
-                {hero.ctaPrimary}
-                <ArrowIcon size={16} />
-              </Pill>
-            </Magnetic>
-            <Magnetic>
-              <Pill
-                as="button"
-                type="button"
-                variant="outline"
-                data-cursor="kontak"
-                onClick={() => navigate('/kontak')}
-              >
-                {hero.ctaSecondary}
-                <ArrowRight size={16} />
-              </Pill>
-            </Magnetic>
+            <motion.div {...reveal(0.5)}>
+              <Magnetic>
+                <Pill
+                  as="button"
+                  type="button"
+                  variant="solid"
+                  data-cursor="lihat"
+                  onClick={() => navigate('/proyek')}
+                >
+                  {hero.ctaPrimary}
+                  <ArrowIcon size={16} />
+                </Pill>
+              </Magnetic>
+            </motion.div>
+            <motion.div {...reveal(0.6)}>
+              <Magnetic>
+                <Pill
+                  as="button"
+                  type="button"
+                  variant="outline"
+                  data-cursor="kontak"
+                  onClick={() => navigate('/kontak')}
+                >
+                  {hero.ctaSecondary}
+                  <ArrowRight size={16} />
+                </Pill>
+              </Magnetic>
+            </motion.div>
           </div>
         </div>
 
         {/* KANAN: ID card dengan lanyard */}
         <div className="idcard-col relative flex w-full items-center justify-center">
-          <IdCard photoRef={photoRef} />
+          <IdCard photoRef={photoRef} introReady={ready} />
         </div>
       </div>
 

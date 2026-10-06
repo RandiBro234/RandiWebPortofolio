@@ -68,7 +68,7 @@ function useCardScale(ref) {
   return scale;
 }
 
-export default function IdCard({ photoRef }) {
+export default function IdCard({ photoRef, introReady = true }) {
   const reduced = useReducedMotion();
   const stageRef = useRef(null);
   const cardRef = useRef(null);
@@ -142,12 +142,6 @@ export default function IdCard({ photoRef }) {
       ([entry]) => {
         inView.current = entry.isIntersecting;
         paintRope();
-        if (entry.isIntersecting && !introDone.current) {
-          introDone.current = true;
-          angle.current = 12;
-          vel.current = 0;
-          targetAngle.current = 0;
-        }
       },
       { threshold: 0.3 },
     );
@@ -165,6 +159,17 @@ export default function IdCard({ photoRef }) {
       document.removeEventListener('visibilitychange', onVis);
     };
   }, [reduced, paintRope]);
+
+  // Intro ayunan dipicu oleh sinyal preloader selesai.
+  useEffect(() => {
+    if (reduced || !introReady || introDone.current) return;
+    introDone.current = true;
+    angle.current = 12;
+    vel.current = 0;
+    targetAngle.current = 0;
+    inView.current = true;
+    paintRope();
+  }, [introReady, reduced, paintRope]);
 
   const scheduleIdleHint = useCallback(() => {
     if (reduced) return;
@@ -358,22 +363,9 @@ export default function IdCard({ photoRef }) {
                     </div>
 
                     {/* baris info */}
-                    <div className="mt-2.5 flex shrink-0 items-center justify-between px-3.5" style={{ height: 40 }}>
-                      <div className="leading-tight">
-                        <p className="font-mono text-[10px] text-neutral-500">NRP 3324600013</p>
-                        <p className="font-mono text-[10px] text-neutral-500">ANGKATAN 2024</p>
-                      </div>
-                      <div
-                        aria-hidden="true"
-                        className="grid h-10 w-10 shrink-0 place-items-center rounded-full border-2 border-white"
-                        style={{
-                          background:
-                            'conic-gradient(from 210deg, #FF8A4B, #C9A7FF, #6FB7FF, #57E0B0, #FFD166, #FF8A4B)',
-                          boxShadow: '0 2px 5px rgba(0,0,0,0.3), inset 0 0 0 1px rgba(255,255,255,0.5)',
-                        }}
-                      >
-                        <span className="font-display text-base font-extrabold text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.5)]">R</span>
-                      </div>
+                    <div className="mt-2.5 flex shrink-0 flex-col justify-center px-3.5" style={{ height: 40 }}>
+                      <p className="font-mono text-[10px] text-neutral-500">NRP 3324600013</p>
+                      <p className="font-mono text-[10px] text-neutral-500">ANGKATAN 2024</p>
                     </div>
 
                     {/* strip footer marquee */}

@@ -1,7 +1,8 @@
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import Layout from './layouts/RootLayout';
-import { useReducedMotion } from './hooks';
+import Preloader from './components/Preloader';
+import { IntroContext, useReducedMotion } from './hooks';
 
 const Home = lazy(() => import('./pages/Home'));
 const Projects = lazy(() => import('./pages/Projects'));
@@ -44,6 +45,21 @@ export default function App() {
   const location = useLocation();
   const reduced = useReducedMotion();
 
+  // Preloader: tampil sekali per sesi tab.
+  const seenIntro =
+    typeof window !== 'undefined' && sessionStorage.getItem('introSeen') === '1';
+  const [showPreloader, setShowPreloader] = useState(!seenIntro && !reduced);
+  const [introReady, setIntroReady] = useState(seenIntro || reduced);
+
+  const handleIntroDone = () => {
+    setIntroReady(true);
+    try {
+      sessionStorage.setItem('introSeen', '1');
+    } catch {
+      /* ignore */
+    }
+  };
+
   // Lokasi yang sedang DITAMPILKAN. Dibekukan sampai panel selesai menutup,
   // supaya halaman lama tetap terlihat di balik panel, lalu baru ditukar.
   const [displayLocation, setDisplayLocation] = useState(location);
@@ -85,18 +101,26 @@ export default function App() {
   }, [location.pathname, reduced]);
 
   return (
-    <Layout showPanel={showPanel} panelLabel={panelLabel}>
-      <Suspense fallback={<PageFallback />}>
-        <Routes location={displayLocation}>
-          <Route index element={<Home />} />
-          <Route path="proyek" element={<Projects />} />
-          <Route path="proyek/:slug" element={<ProjectDetail />} />
-          <Route path="tools" element={<Tools />} />
-          <Route path="journey" element={<Journey />} />
-          <Route path="kontak" element={<Contact />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </Suspense>
-    </Layout>
+    <IntroContext.Provider value={{ ready: introReady, stage: introReady ? 1 : 0 }}>
+      {showPreloader && (
+        <Preloader
+          onDone={handleIntroDone}
+          onFinish={() => setShowPreloader(false)}
+        />
+      )}
+      <Layout showPanel={showPanel} panelLabel={panelLabel}>
+        <Suspense fallback={<PageFallback />}>
+          <Routes location={displayLocation}>
+            <Route index element={<Home />} />
+            <Route path="proyek" element={<Projects />} />
+            <Route path="proyek/:slug" element={<ProjectDetail />} />
+            <Route path="tools" element={<Tools />} />
+            <Route path="journey" element={<Journey />} />
+            <Route path="kontak" element={<Contact />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Suspense>
+      </Layout>
+    </IntroContext.Provider>
   );
 }
