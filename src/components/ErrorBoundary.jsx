@@ -14,10 +14,17 @@ export default class ErrorBoundary extends Component {
   componentDidCatch(error, info) {
     // Tampilkan di console untuk debugging; tidak dikirim ke mana pun.
     console.error('ErrorBoundary:', error, info);
+    if (this.props.silent && typeof this.props.onError === 'function') {
+      this.props.onError(error);
+    }
   }
 
   render() {
     if (this.state.error) {
+      // Untuk preloader: jangan tampilkan apa-apa, cukup beri tahu parent.
+      if (this.props.silent) {
+        return null;
+      }
       return (
         <div className="grid min-h-[70svh] place-items-center px-5 pt-28 md:pt-32">
           <div className="max-w-lg text-center">

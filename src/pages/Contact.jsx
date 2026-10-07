@@ -4,6 +4,7 @@ import { ArrowIcon } from '../components/icons';
 import { contact, profile, pages } from '../data/content';
 import { usePageMeta } from '../hooks';
 import { copyText } from '../utils';
+import { EntryTitle, EntryFade } from '../components/EntryReveal';
 
 function CopyButton({ value }) {
   const [copied, setCopied] = useState(false);
@@ -244,12 +245,14 @@ export default function Contact() {
                 </span>
                 {b.badge}
               </span>
-              <h1
-                className="mt-4 font-display font-extrabold leading-[1.1]"
-                style={{ fontSize: 'clamp(1.75rem, 4vw, 3rem)', letterSpacing: '-0.02em' }}
-              >
-                {b.heading}
-              </h1>
+              <EntryTitle>
+                <h1
+                  className="mt-4 font-display font-extrabold leading-[1.1]"
+                  style={{ fontSize: 'clamp(1.75rem, 4vw, 3rem)', letterSpacing: '-0.02em' }}
+                >
+                  {b.heading}
+                </h1>
+              </EntryTitle>
               <p className="mt-4 max-w-xl text-[16px] leading-[1.65] text-white/70">
                 {b.subtitle}
               </p>
@@ -266,6 +269,7 @@ export default function Contact() {
 
       {/* kartu kontak */}
       <section className="section px-5 md:px-8">
+        <EntryFade delay={0.1}>
         <div className="mx-auto grid max-w-6xl gap-4 sm:grid-cols-2">
           <ContactCard
             label="Email"
@@ -346,15 +350,18 @@ export default function Contact() {
               data-cursor="unduh"
               className="inline-flex items-center gap-2 rounded-pill bg-accent px-6 py-3 text-[15px] font-semibold text-white transition-all hover:-translate-y-px hover:bg-[#e63f16]"
             >
-              Unduh CV
-              <ArrowIcon size={16} />
-            </a>
+          Unduh CV
+                <ArrowIcon size={16} />
+              </a>
+            </div>
           </div>
-        </div>
+        </EntryFade>
 
+        <EntryFade delay={0.18}>
         <div className="mx-auto mt-6 max-w-6xl">
           <MessageForm />
         </div>
+        </EntryFade>
 
         <p className="mx-auto mt-8 max-w-6xl text-center text-[14px] text-muted">
           Atau lihat dulu{' '}

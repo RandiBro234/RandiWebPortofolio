@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import PageHeader from '../components/PageHeader';
+import { EntryFade } from '../components/EntryReveal';
 import { ArrowIcon } from '../components/icons';
 import { timeline, profile, pages } from '../data/content';
 import { usePageMeta } from '../hooks';
@@ -132,6 +133,7 @@ export default function Journey() {
         subtitle={timeline.subtitle}
       />
 
+      <EntryFade delay={0.1}>
       <div ref={containerRef} className="relative mx-auto mt-10 max-w-4xl">
         <div aria-hidden="true" className="absolute left-4 top-0 h-full w-[2px] bg-line md:left-1/2 md:-translate-x-1/2">
           <div className="w-full bg-accent transition-[height] duration-150 ease-out" style={{ height: `${progress * 100}%` }} />
@@ -148,6 +150,7 @@ export default function Journey() {
           ))}
         </ol>
       </div>
+      </EntryFade>
 
       <div className="mx-auto mt-10 flex max-w-4xl justify-center">
         <a

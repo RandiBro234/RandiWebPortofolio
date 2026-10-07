@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useParams, Navigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowIcon, ArrowRight } from '../components/icons';
+import { EntryTitle, EntryFade } from '../components/EntryReveal';
 import { projects, pages } from '../data/content';
 import { usePageMeta } from '../hooks';
 import { cn } from '../utils';
@@ -73,9 +74,9 @@ export default function ProjectDetail() {
 
       <div className="mx-auto max-w-6xl px-5 pb-16 md:px-8 md:pb-24">
         <motion.header
-          initial={{ opacity: 0, y: 18 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3 }}
         >
           <Link to="/proyek" className="inline-flex items-center gap-1.5 text-[13px] font-medium text-muted hover:text-accent">
             <ArrowRight size={14} className="rotate-180" />
@@ -84,7 +85,9 @@ export default function ProjectDetail() {
           <p className="mt-4 text-[12px] font-semibold uppercase tracking-wider text-muted">
             {project.categories.join(' · ')} · {project.period}
           </p>
-          <h1 className="section-h2 mt-2">{project.name}</h1>
+          <EntryTitle>
+            <h1 className="section-h2 mt-2">{project.name}</h1>
+          </EntryTitle>
           <p className="mt-2 text-[15px] font-semibold text-accent">{project.role}</p>
           <p className="section-sub mt-4 text-muted">{project.summary}</p>
 
@@ -114,6 +117,7 @@ export default function ProjectDetail() {
           </div>
         </motion.header>
 
+        <EntryFade delay={0.1}>
         <div className="mt-12 grid gap-10 lg:grid-cols-[200px_1fr] lg:gap-14">
           {/* nav kiri sticky */}
           <nav aria-label="Bagian studi kasus" className="hidden lg:block">
@@ -187,6 +191,7 @@ export default function ProjectDetail() {
             </div>
           </article>
         </div>
+        </EntryFade>
       </div>
     </div>
   );

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import PageHeader from '../components/PageHeader';
+import { EntryFade } from '../components/EntryReveal';
 import { ArrowIcon } from '../components/icons';
 import { projects, projectsSection, pages } from '../data/content';
 import { usePageMeta, useReducedMotion } from '../hooks';
@@ -259,6 +260,7 @@ export default function Projects() {
       />
 
       {/* filter */}
+      <EntryFade delay={0.1}>
       <div className="mx-auto mt-8 flex max-w-6xl flex-wrap gap-2">
         {filters.map((f) => (
           <button
@@ -277,12 +279,14 @@ export default function Projects() {
           </button>
         ))}
       </div>
+      </EntryFade>
 
       {list.length === 0 ? (
         <p className="mx-auto mt-16 max-w-6xl text-center text-muted">
           Belum ada proyek di kategori ini.
         </p>
       ) : (
+      <EntryFade delay={0.18}>
         <div className="mx-auto mt-8 grid max-w-6xl gap-8 lg:grid-cols-[minmax(0,0.4fr)_minmax(0,0.6fr)]">
           {/* daftar kiri */}
           <div ref={listRef} className="lg:sticky lg:self-start" style={{ top: 'calc(var(--nav-h) + 24px)' }}>
@@ -378,6 +382,7 @@ export default function Projects() {
             })}
           </div>
         </div>
+      </EntryFade>
       )}
     </div>
   );

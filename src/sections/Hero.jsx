@@ -270,6 +270,33 @@ export default function Hero() {
             <Typewriter words={hero.peran.roles} reduced={reduced} start={ready} />
           </div>
 
+          {/* Kelompok label di kiri kartu: muncul berurutan dari kiri */}
+          <div className="relative z-40 mt-5 flex flex-wrap items-center justify-center gap-2 lg:justify-start">
+            {hero.anotasi.map((a, i) => (
+              <motion.span
+                key={a}
+                {...reveal(0.7 + i * 0.08)}
+                className="inline-flex items-center gap-1.5 rounded-full border border-line bg-white/80 px-3 py-1 font-mono text-[11px] text-muted"
+              >
+                <span className="h-1.5 w-1.5 rounded-full bg-accent" aria-hidden="true" />
+                {a}
+              </motion.span>
+            ))}
+          </div>
+
+          {/* Chip kode: fade in terakhir */}
+          <div className="relative z-40 mt-3 flex flex-wrap items-center justify-center gap-2 lg:justify-start">
+            {hero.chips.map((c, i) => (
+              <motion.span
+                key={c}
+                {...reveal(1.05 + i * 0.08)}
+                className="rounded-md border border-line bg-ink px-2.5 py-1 font-mono text-[11px] text-white"
+              >
+                {c}
+              </motion.span>
+            ))}
+          </div>
+
           {/* Tombol: kiri-bawah & kanan-bawah di dalam kolom teks */}
           <div className="relative z-40 mt-6 flex w-full max-w-md flex-wrap items-center justify-center gap-3 lg:justify-start">
             <motion.div {...reveal(0.5)}>

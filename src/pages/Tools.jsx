@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import PageHeader from '../components/PageHeader';
+import { EntryFade } from '../components/EntryReveal';
 import { toolkit, toolPipeline, projects, pages } from '../data/content';
 import { usePageMeta } from '../hooks';
 import { cn } from '../utils';
@@ -136,11 +137,14 @@ export default function Tools() {
         subtitle="Alat yang saya pakai sehari-hari, dari mengolah data sampai mengirim model ke produksi."
       />
 
+      <EntryFade delay={0.1}>
       <div className="mx-auto mt-8 max-w-6xl">
         <PipelineFlow />
       </div>
+      </EntryFade>
 
       {/* marquee */}
+      <EntryFade delay={0.18}>
       <div className="relative mx-auto mt-6 max-w-6xl overflow-hidden rounded-pill border border-line bg-white py-2.5">
         <div className="flex w-max animate-marquee gap-3 will-change-transform">
           {[...toolkit.marquee, ...toolkit.marquee].map((t, i) => (
@@ -153,6 +157,7 @@ export default function Tools() {
           ))}
         </div>
       </div>
+      </EntryFade>
 
       {/* pencarian */}
       <div className="mx-auto mt-8 max-w-6xl">

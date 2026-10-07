@@ -637,3 +637,11 @@ export const footer = {
   copyright: `© ${new Date().getFullYear()} Randi Nandika Danendra`,
   note: "Dibangun dengan React, Vite, dan Tailwind CSS.",
 };
+
+// Konfigurasi animasi intro (preloader) saat pemuatan penuh.
+// aktif: false untuk mematikan; durasi dalam milidetik.
+export const intro = {
+  aktif: true,
+  durasiMin: 1500,
+  durasiMaks: 3000,
+};

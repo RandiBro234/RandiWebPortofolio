@@ -1,8 +1,10 @@
-import { lazy, Suspense, useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import Layout from './layouts/RootLayout';
 import Preloader from './components/Preloader';
+import ErrorBoundary from './components/ErrorBoundary';
 import { IntroContext, useReducedMotion } from './hooks';
+import { intro } from './data/content';
 
 const Home = lazy(() => import('./pages/Home'));
 const Projects = lazy(() => import('./pages/Projects'));
@@ -45,19 +47,55 @@ export default function App() {
   const location = useLocation();
   const reduced = useReducedMotion();
 
-  // Preloader: tampil sekali per sesi tab.
-  const seenIntro =
-    typeof window !== 'undefined' && sessionStorage.getItem('introSeen') === '1';
-  const [showPreloader, setShowPreloader] = useState(!seenIntro && !reduced);
-  const [introReady, setIntroReady] = useState(seenIntro || reduced);
+  // Preloader tampil di SETIAP pemuatan penuh (kunjungan pertama, refresh,
+  // atau buka langsung URL apa pun). Tidak pernah untuk navigasi dalam aplikasi.
+  // Perpindahan POP (back/forward) memakai transisi rute biasa.
+
+  // Deteksi pemuatan penuh: preloader ditampilkan di setiap full load,
+  // dan tidak pernah untuk navigasi dalam aplikasi.
+  const [showPreloader, setShowPreloader] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    if (reduced) return false;
+    return intro.aktif !== false;
+  });
+  const [introReady, setIntroReady] = useState(false);
+  const [introSeen, setIntroSeen] = useState(false);
+
+  // Selalu kunci restore scroll ke manual; scroll dikunci selama preloader,
+  // posisi halaman tidak diubah (tetap di posisi yang benar).
+  useLayoutEffect(() => {
+    if ('scrollRestoration' in window.history) {
+      try {
+        window.history.scrollRestoration = 'manual';
+      } catch {
+        /* abaikan */
+      }
+    }
+  }, []);
+
+  // Jaring pengaman: apa pun yang terjadi, preloader dihapus dan intro selesai
+  // paling lambat durasiMaks + 1500ms. Juga memastikan scroll tidak terkunci.
+  useEffect(() => {
+    if (!showPreloader) return;
+    const t = setTimeout(() => {
+      setShowPreloader(false);
+      setIntroReady(true);
+      setIntroSeen(true);
+      document.body.style.overflow = '';
+    }, intro.durasiMaks + 1500);
+    return () => clearTimeout(t);
+  }, [showPreloader]);
 
   const handleIntroDone = () => {
     setIntroReady(true);
-    try {
-      sessionStorage.setItem('introSeen', '1');
-    } catch {
-      /* ignore */
-    }
+    setIntroSeen(true);
+  };
+
+  const handlePreloaderError = () => {
+    setShowPreloader(false);
+    setIntroReady(true);
+    setIntroSeen(true);
+    document.body.style.overflow = '';
   };
 
   // Lokasi yang sedang DITAMPILKAN. Dibekukan sampai panel selesai menutup,
@@ -75,6 +113,8 @@ export default function App() {
 
     // Transisi hanya saat PATHNAME berubah (pindah halaman lewat navbar).
     // Perubahan query (mis. ?p=slug di /proyek) tidak memicu transisi.
+    // Transisi rute dan animasi masuk ditunda sampai intro selesai.
+    if (!introSeen) return;
     if (location.pathname === displayLocation.pathname) {
       setDisplayLocation(location);
       return;
@@ -98,15 +138,31 @@ export default function App() {
       clearTimeout(t2);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.pathname, reduced]);
+  }, [location.pathname, reduced, introSeen]);
+
+  // Pindahkan fokus ke heading halaman setelah intro selesai (aksesibilitas).
+  useEffect(() => {
+    if (!introReady) return;
+    const t = setTimeout(() => {
+      const h1 = document.querySelector('main h1');
+      if (h1 && !h1.hasAttribute('tabindex')) {
+        h1.setAttribute('tabindex', '-1');
+        h1.style.outline = 'none';
+      }
+      h1?.focus({ preventScroll: true });
+    }, 450);
+    return () => clearTimeout(t);
+  }, [introReady, displayLocation]);
 
   return (
     <IntroContext.Provider value={{ ready: introReady, stage: introReady ? 1 : 0 }}>
       {showPreloader && (
-        <Preloader
-          onDone={handleIntroDone}
-          onFinish={() => setShowPreloader(false)}
-        />
+        <ErrorBoundary silent onError={handlePreloaderError}>
+          <Preloader
+            onDone={handleIntroDone}
+            onFinish={() => setShowPreloader(false)}
+          />
+        </ErrorBoundary>
       )}
       <Layout showPanel={showPanel} panelLabel={panelLabel}>
         <Suspense fallback={<PageFallback />}>
