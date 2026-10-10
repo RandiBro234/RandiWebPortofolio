@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import LogoMark from './LogoMark';
 import { intro } from '../data/content';
 
@@ -193,14 +194,37 @@ export default function Preloader({ onDone, onFinish }) {
     };
   }, [beginExit]);
 
-  // Kunci scroll selama preloader tampil.
+  // Kunci scroll + tandai html.preloading selama preloader tampil (iOS-safe).
+  // Saat tirai mulai terbuka (exiting), lepas 'preloading' agar konten app
+  // terlihat di balik tirai; scroll tetap terkunci sampai preloader unmount.
   useEffect(() => {
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
+    const html = document.documentElement;
+    const body = document.body;
+    const prev = {
+      htmlOverflow: html.style.overflow,
+      bodyOverflow: body.style.overflow,
+      htmlHeight: html.style.height,
+      bodyHeight: body.style.height,
+    };
+    html.classList.add('preloading');
+    html.style.overflow = 'hidden';
+    body.style.overflow = 'hidden';
+    html.style.height = '100%';
+    body.style.height = '100%';
     return () => {
-      document.body.style.overflow = prev;
+      html.classList.remove('preloading');
+      html.style.overflow = prev.htmlOverflow;
+      body.style.overflow = prev.bodyOverflow;
+      html.style.height = prev.htmlHeight;
+      body.style.height = prev.bodyHeight;
     };
   }, []);
+
+  // Lepas 'preloading' (tampilkan konten) tepat saat tirai mulai bergerak.
+  useEffect(() => {
+    if (!exiting) return;
+    document.documentElement.classList.remove('preloading');
+  }, [exiting]);
 
   const pct = Math.round(progress * 100);
   const pctLabel = String(pct).padStart(3, '0') + '%';
@@ -233,19 +257,31 @@ export default function Preloader({ onDone, onFinish }) {
     );
   };
 
-  return (
+  const node = (
     <div
       role="status"
       aria-live="polite"
       aria-label="Memuat portofolio"
-      className="fixed inset-0 z-[300]"
+      className="fixed z-[300] overflow-hidden bg-[#111111]"
+      style={{
+        inset: 0,
+        minHeight: '100vh',
+        ...(typeof CSS !== 'undefined' && CSS.supports?.('height', '100dvh')
+          ? { minHeight: '100dvh' }
+          : {}),
+      }}
     >
-      {/* Panel tirai atas/bawah: lebih tinggi dari setengah layar agar tidak ada celah */}
+      {/* Panel tirai atas/bawah: overlap 1px di tengah + overscan melewati tepi layar */}
       <div
         aria-hidden="true"
-        className="absolute inset-x-0 top-0 h-[50.5vh] bg-ink-dark will-change-transform"
+        className="absolute bg-[#111111] will-change-transform"
         style={{
-          transform: exiting ? 'translateY(-100%)' : 'translateY(0)',
+          left: 0,
+          right: 0,
+          width: '100%',
+          top: '-100px',
+          height: 'calc(50% + 100px + 1px)',
+          transform: exiting ? 'translateY(-105%)' : 'translateY(0)',
           transition: exiting ? `transform ${CURTAIN_MS}ms cubic-bezier(0.76,0,0.24,1)` : 'none',
         }}
       >
@@ -259,9 +295,14 @@ export default function Preloader({ onDone, onFinish }) {
       </div>
       <div
         aria-hidden="true"
-        className="absolute inset-x-0 bottom-0 h-[50.5vh] bg-ink-dark will-change-transform"
+        className="absolute bg-[#111111] will-change-transform"
         style={{
-          transform: exiting ? 'translateY(100%)' : 'translateY(0)',
+          left: 0,
+          right: 0,
+          width: '100%',
+          bottom: '-100px',
+          height: 'calc(50% + 100px + 1px)',
+          transform: exiting ? 'translateY(105%)' : 'translateY(0)',
           transition: exiting ? `transform ${CURTAIN_MS}ms cubic-bezier(0.76,0,0.24,1)` : 'none',
         }}
       >
@@ -277,7 +318,15 @@ export default function Preloader({ onDone, onFinish }) {
       {/* Konten tengah */}
       <div
         className="absolute inset-0 flex flex-col items-center justify-center px-6 transition-opacity duration-200"
-        style={{ opacity: exiting ? 0 : 1 }}
+        style={{
+          opacity: exiting ? 0 : 1,
+          minHeight: '100vh',
+          ...(typeof CSS !== 'undefined' && CSS.supports?.('height', '100dvh')
+            ? { minHeight: '100dvh' }
+            : {}),
+          paddingTop: 'env(safe-area-inset-top)',
+          paddingBottom: 'env(safe-area-inset-bottom)',
+        }}
       >
         {/* Logo */}
         <div
@@ -316,4 +365,9 @@ export default function Preloader({ onDone, onFinish }) {
       </div>
     </div>
   );
+
+  // Portal ke <body> agar tersembunyinya #root (konten app) tidak ikut menyembunyikan preloader.
+  return typeof document !== 'undefined'
+    ? createPortal(node, document.body)
+    : node;
 }

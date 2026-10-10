@@ -27,6 +27,22 @@
   --radius-xl2: 40px;
 }
 
+/* Selama preloader aktif: html & body hitam solid + scroll terkunci (khususnya iOS). */
+html.preloading,
+html.preloading body {
+  background-color: #111111 !important;
+  overflow: hidden !important;
+  height: 100% !important;
+  overscroll-behavior: none;
+  touch-action: none;
+}
+
+/* Konten aplikasi disembunyikan (bukan display:none) selama intro. */
+html.preloading #root {
+  visibility: hidden;
+  pointer-events: none;
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;
