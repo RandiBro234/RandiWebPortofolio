@@ -154,8 +154,8 @@ export default function Journey() {
 
       <div className="mx-auto mt-10 flex max-w-4xl justify-center">
         <a
-          href={profile.cvPath}
-          download
+          href={profile.cvUrl}
+          download={profile.cvDownloadName}
           data-cursor="unduh"
           className="inline-flex items-center gap-2 rounded-pill bg-accent px-6 py-3 text-[15px] font-semibold text-white transition-all hover:-translate-y-px hover:bg-[#e63f16]"
         >

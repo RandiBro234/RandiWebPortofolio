@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import PageHeader from '../components/PageHeader';
@@ -40,7 +40,7 @@ function ToolTag({ children }) {
 }
 
 // Preview bergaya CSS/SVG, tema berbeda tipis per proyek.
-function ProjectPreview({ project, compact = false }) {
+const ProjectPreview = memo(function ProjectPreview({ project, compact = false }) {
   const theme = {
     faultsense: 'from-accent-soft to-white',
     meddistrib: 'from-ink/5 to-white',
@@ -89,9 +89,9 @@ function ProjectPreview({ project, compact = false }) {
       )}
     </div>
   );
-}
+});
 
-function DetailPanel({ project, compact = false }) {
+const DetailPanel = memo(function DetailPanel({ project, compact = false }) {
   const reduced = useReducedMotion();
 
   return (
@@ -194,7 +194,7 @@ function DetailPanel({ project, compact = false }) {
       </motion.div>
     </AnimatePresence>
   );
-}
+});
 
 export default function Projects() {
   usePageMeta(pages.projects.title, pages.projects.description);

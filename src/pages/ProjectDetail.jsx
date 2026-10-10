@@ -30,7 +30,7 @@ export default function ProjectDetail() {
   const { slug } = useParams();
   const project = useMemo(() => projects.find((p) => p.slug === slug), [slug]);
   const [activeKey, setActiveKey] = useState('pertanyaan');
-  const [readProgress, setReadProgress] = useState(0);
+  const barRef = useRef(null);
   const articleRef = useRef(null);
 
   const meta = project
@@ -38,26 +38,51 @@ export default function ProjectDetail() {
     : { title: pages.notFound.title, description: pages.notFound.description };
   usePageMeta(meta.title, meta.description);
 
+  // Progres baca: tulis transform lewat ref (tanpa setState per frame).
   useEffect(() => {
-    const onScroll = () => {
+    let raf = 0;
+    const update = () => {
       const el = articleRef.current;
-      if (!el) return;
+      const bar = barRef.current;
+      if (!el || !bar) return;
       const rect = el.getBoundingClientRect();
       const total = rect.height;
       const read = Math.min(Math.max(-rect.top, 0), total);
-      setReadProgress(total > 0 ? read / total : 0);
-
-      const marker = window.innerHeight * 0.35;
-      let current = storyOrder[0].key;
-      storyOrder.forEach(({ key }) => {
-        const node = document.getElementById(`story-${key}`);
-        if (node && node.getBoundingClientRect().top <= marker) current = key;
-      });
-      setActiveKey(current);
+      bar.style.transform = `scaleX(${total > 0 ? read / total : 0})`;
     };
-    onScroll();
+    const onScroll = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(update);
+    };
+    update();
     window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+    window.addEventListener('resize', onScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+      cancelAnimationFrame(raf);
+    };
+  }, [slug]);
+
+  // Bagian aktif: IntersectionObserver.
+  useEffect(() => {
+    const nodes = storyOrder
+      .map(({ key }) => ({ key, node: document.getElementById(`story-${key}`) }))
+      .filter((x) => x.node);
+    if (!nodes.length) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const vis = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
+        if (!vis) return;
+        const key = nodes.find((n) => n.node === vis.target)?.key;
+        if (key) setActiveKey((prev) => (prev === key ? prev : key));
+      },
+      { rootMargin: '-35% 0px -60% 0px', threshold: 0 },
+    );
+    nodes.forEach((n) => observer.observe(n.node));
+    return () => observer.disconnect();
   }, [slug]);
 
   if (!project) return <Navigate to="/proyek-tidak-ditemukan" replace />;
@@ -69,7 +94,7 @@ export default function ProjectDetail() {
     <div className="relative pt-28 md:pt-32">
       {/* bar progres baca */}
       <div aria-hidden="true" className="fixed inset-x-0 top-0 z-[125] h-[3px] bg-transparent">
-        <div className="h-full origin-left bg-accent" style={{ transform: `scaleX(${readProgress})` }} />
+        <div ref={barRef} className="h-full origin-left bg-accent will-change-transform" style={{ transform: 'scaleX(0)' }} />
       </div>
 
       <div className="mx-auto max-w-6xl px-5 pb-16 md:px-8 md:pb-24">

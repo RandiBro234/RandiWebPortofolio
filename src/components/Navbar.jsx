@@ -39,8 +39,22 @@ export default function Navbar({ onOpenPalette }) {
   const menuRef = useRef(null);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40);
-    onScroll();
+    let last = false;
+    let ticking = false;
+    const update = () => {
+      ticking = false;
+      const next = window.scrollY > 40;
+      if (next !== last) {
+        last = next;
+        setScrolled(next);
+      }
+    };
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(update);
+    };
+    update();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);

@@ -115,6 +115,11 @@ section[id] {
   scroll-margin-top: var(--nav-h);
 }
 
+/* Kartu: batasi perhitungan layout/paint agar ringan saat scroll. */
+.contain-card {
+  contain: layout paint style;
+}
+
 @media (min-width: 768px) {
   .section {
     padding-top: 6rem;
@@ -233,7 +238,19 @@ section[id] {
 }
 
 @keyframes spin-slow {
-  to { transform: rotate(360deg); }}
+  to { transform: rotate(360deg); }
+}
+
+/* Pause semua animasi berulang saat tab tidak aktif. */
+.tab-hidden .animate-marquee,
+.tab-hidden .animate-float-slow,
+.tab-hidden .animate-spin-slow,
+.tab-hidden .hero-chip-float,
+.tab-hidden .footer-marquee,
+.tab-hidden .animate-pulse,
+.tab-hidden .animate-ping {
+  animation-play-state: paused !important;
+}
 
 .animate-marquee {
   animation: marquee 32s linear infinite;
@@ -430,8 +447,7 @@ section[id] {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
-  *,
+  html { scroll-behavior: auto; }  *,
   *::before,
   *::after {
     animation-duration: 0.001ms !important;

@@ -83,33 +83,55 @@ function StepNav({ activeIndex }) {
 
 export default function Journey() {
   const containerRef = useRef(null);
-  const [progress, setProgress] = useState(0);
+  const progressRef = useRef(null);
   const [activeIndex, setActiveIndex] = useState(0);
 
+  // Bar progres: tulis transform lewat ref (tanpa setState per frame).
   useEffect(() => {
-    const onScroll = () => {
+    let raf = 0;
+    const update = () => {
       const el = containerRef.current;
-      if (!el) return;
+      const bar = progressRef.current;
+      if (!el || !bar) return;
       const rect = el.getBoundingClientRect();
       const total = rect.height - window.innerHeight;
       const scrolled = Math.min(Math.max(-rect.top, 0), Math.max(total, 1));
-      setProgress(total > 0 ? scrolled / total : 0);
-
-      const marker = window.innerHeight * 0.4;
-      let idx = 0;
-      journey.stages.forEach((s, i) => {
-        const node = document.getElementById(`alur-${s.key}`);
-        if (node && node.getBoundingClientRect().top <= marker) idx = i;
-      });
-      setActiveIndex(idx);
+      const p = total > 0 ? scrolled / total : 0;
+      bar.style.transform = `scaleY(${p})`;
     };
-    onScroll();
+    const onScroll = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(update);
+    };
+    update();
     window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onScroll);
+    window.addEventListener('resize', onScroll, { passive: true });
     return () => {
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onScroll);
+      cancelAnimationFrame(raf);
     };
+  }, []);
+
+  // Tahap aktif: IntersectionObserver, setState hanya saat indeks berubah.
+  useEffect(() => {
+    const nodes = journey.stages
+      .map((s, i) => ({ i, node: document.getElementById(`alur-${s.key}`) }))
+      .filter((x) => x.node);
+    if (!nodes.length) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const vis = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
+        if (!vis) return;
+        const idx = nodes.find((n) => n.node === vis.target)?.i ?? 0;
+        setActiveIndex((prev) => (prev === idx ? prev : idx));
+      },
+      { rootMargin: '-40% 0px -55% 0px', threshold: 0 },
+    );
+    nodes.forEach((n) => observer.observe(n.node));
+    return () => observer.disconnect();
   }, []);
 
   return (
@@ -130,8 +152,9 @@ export default function Journey() {
             className="absolute left-[17px] top-0 hidden h-full w-[3px] rounded-pill bg-line lg:block"
           >
             <div
-              className="w-full rounded-pill bg-accent transition-[height] duration-150 ease-out"
-              style={{ height: `${progress * 100}%` }}
+              ref={progressRef}
+              className="h-full w-full origin-top rounded-pill bg-accent will-change-transform"
+              style={{ transform: 'scaleY(0)' }}
             />
           </div>
           <div className="lg:pl-20">

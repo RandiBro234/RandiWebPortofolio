@@ -78,6 +78,7 @@ export default function IdCard({ photoRef, introReady = true }) {
 
   const [flipped, setFlipped] = useState(false);
   const [canHover, setCanHover] = useState(false);
+  const [isNarrow, setIsNarrow] = useState(false);
   const ropeId = useId().replace(/:/g, '');
 
   const angle = useRef(0);
@@ -98,13 +99,26 @@ export default function IdCard({ photoRef, introReady = true }) {
     setCanHover(hov);
   }, []);
 
-  // Tempatkan tali dari klip (atas kartu) ke tepi atas halaman.
+  // Di bawah lg: tali pendek (tidak sampai atas halaman), ayunan kecil.
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 1023px)');
+    const update = () => setIsNarrow(mq.matches);
+    update();
+    mq.addEventListener('change', update);
+    return () => mq.removeEventListener('change', update);
+  }, []);
+
+  // Tempatkan tali: mobile panjang tetap pendek; desktop dari tepi atas halaman.
   const paintRope = useCallback(() => {
     const rope = ropeRef.current;
     const card = cardRef.current;
     if (!rope || !card) return;
-    const cardTop = card.getBoundingClientRect().top; // posisi klip di viewport
-    const length = Math.max(cardTop, 0);
+    let length;
+    if (window.matchMedia('(max-width: 1023px)').matches) {
+      length = 52; // tali pendek di mobile, berakhir di klip di atas kartu
+    } else {
+      length = Math.max(card.getBoundingClientRect().top, 0);
+    }
     rope.setAttribute('d', `M50 0 Q50 ${length / 2},50 ${length}`);
     rope.parentElement?.setAttribute('viewBox', `0 0 100 ${Math.max(length, 1)}`);
     rope.parentElement?.style.setProperty('height', `${length}px`);
@@ -164,7 +178,8 @@ export default function IdCard({ photoRef, introReady = true }) {
   useEffect(() => {
     if (reduced || !introReady || introDone.current) return;
     introDone.current = true;
-    angle.current = 12;
+    const narrow = window.matchMedia('(max-width: 1023px)').matches;
+    angle.current = narrow ? 4 : 12;
     vel.current = 0;
     targetAngle.current = 0;
     inView.current = true;
@@ -175,9 +190,10 @@ export default function IdCard({ photoRef, introReady = true }) {
     if (reduced) return;
     clearTimeout(idleTimer.current);
     idleTimer.current = setTimeout(() => {
-      targetAngle.current = 1.6;
+      const amp = window.matchMedia('(max-width: 1023px)').matches ? 1.2 : 1.6;
+      targetAngle.current = amp;
       setTimeout(() => {
-        targetAngle.current = -1.6;
+        targetAngle.current = -amp;
         setTimeout(() => { targetAngle.current = 0; }, 700);
       }, 700);
     }, 6000);
@@ -197,8 +213,9 @@ export default function IdCard({ photoRef, introReady = true }) {
     const dx = e.clientX - dragStart.current.x;
     const dy = e.clientY - dragStart.current.y;
     moved.current = Math.max(moved.current, Math.hypot(dx, dy));
-    let a = dragStart.current.angle + dx * 0.18;
-    a = Math.max(-25, Math.min(25, a));
+    const maxA = isNarrow ? 4 : 25;
+    let a = dragStart.current.angle + dx * (isNarrow ? 0.06 : 0.18);
+    a = Math.max(-maxA, Math.min(maxA, a));
     angle.current = a;
     if (cardRef.current) {
       cardRef.current.style.transform =
@@ -269,7 +286,11 @@ export default function IdCard({ photoRef, introReady = true }) {
     : { transform: 'rotateY(180deg)', backfaceVisibility: 'hidden' };
 
   return (
-    <div ref={stageRef} className="idcard-stage relative" style={{ '--mx': '30%', '--my': '0%' }}>
+    <div
+      ref={stageRef}
+      className="idcard-stage relative"
+      style={{ '--mx': '30%', '--my': '0%', paddingTop: isNarrow ? 56 : 0 }}
+    >
       {/* Sizer: mengatur ruang layout sesuai skala */}
       <div
         className="relative"
@@ -344,13 +365,20 @@ export default function IdCard({ photoRef, introReady = true }) {
 
                     {/* foto mengisi sisa ruang */}
                     <div className="flex min-h-0 flex-1 flex-col px-3">
-                      <img
-                        ref={photoRef}
-                        src={profile.portrait}
-                        alt="Foto Randi Nandika Danendra"
-                        loading="eager"
-                        className="my-3 min-h-0 w-full flex-1 rounded-xl object-cover object-top"
-                      />
+                      <picture>
+                        <source srcSet={profile.portraitWebp} type="image/webp" />
+                        <img
+                          ref={photoRef}
+                          src={profile.portrait}
+                          alt="Foto Randi Nandika Danendra"
+                          width="1100"
+                          height="1100"
+                          loading="eager"
+                          decoding="async"
+                          fetchpriority="high"
+                          className="my-3 min-h-0 w-full flex-1 rounded-xl object-cover object-top"
+                        />
+                      </picture>
                     </div>
 
                     <div className="shrink-0 px-3">

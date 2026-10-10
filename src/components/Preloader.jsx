@@ -120,7 +120,7 @@ export default function Preloader({ onDone, onFinish }) {
     try {
       const img = new Image();
       img.decoding = 'async';
-      img.src = '/assets/randi-cutout.png';
+      img.src = '/assets/randi-cutout.webp';
       const decoded = new Promise((resolve) => {
         const mark = () => {
           if (img.decode) {
@@ -240,10 +240,10 @@ export default function Preloader({ onDone, onFinish }) {
       aria-label="Memuat portofolio"
       className="fixed inset-0 z-[300]"
     >
-      {/* Panel tirai atas/bawah */}
+      {/* Panel tirai atas/bawah: lebih tinggi dari setengah layar agar tidak ada celah */}
       <div
         aria-hidden="true"
-        className="absolute inset-x-0 top-0 h-1/2 bg-ink-dark will-change-transform"
+        className="absolute inset-x-0 top-0 h-[50.5vh] bg-ink-dark will-change-transform"
         style={{
           transform: exiting ? 'translateY(-100%)' : 'translateY(0)',
           transition: exiting ? `transform ${CURTAIN_MS}ms cubic-bezier(0.76,0,0.24,1)` : 'none',
@@ -259,7 +259,7 @@ export default function Preloader({ onDone, onFinish }) {
       </div>
       <div
         aria-hidden="true"
-        className="absolute inset-x-0 bottom-0 h-1/2 bg-ink-dark will-change-transform"
+        className="absolute inset-x-0 bottom-0 h-[50.5vh] bg-ink-dark will-change-transform"
         style={{
           transform: exiting ? 'translateY(100%)' : 'translateY(0)',
           transition: exiting ? `transform ${CURTAIN_MS}ms cubic-bezier(0.76,0,0.24,1)` : 'none',
@@ -273,13 +273,6 @@ export default function Preloader({ onDone, onFinish }) {
           }}
         />
       </div>
-
-      {/* Garis oranye belahan tengah */}
-      <div
-        aria-hidden="true"
-        className="absolute inset-x-0 top-1/2 h-[2px] -translate-y-1/2 bg-accent"
-        style={{ opacity: exiting ? 1 : 0, transition: 'opacity 120ms ease' }}
-      />
 
       {/* Konten tengah */}
       <div

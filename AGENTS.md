@@ -54,9 +54,18 @@ Every string is in `src/data/content.js` — edit that file only, never hardcode
 
 ## Assets
 
-- `public/assets/randi-cutout.png` — portrait cutout. Large (~18 MB); compress before final deploy.
-- `public/assets/CV_Randi_Nandika_Danendra.pdf` — linked by "Unduh CV" (Journey + Contact).
+- `public/assets/randi-cutout.webp` — portrait (WebP, ~356 KB, 1100px). Primary source in the hero/ID card `<picture>`.
+- `public/assets/randi-cutout.png` — PNG fallback (downscaled 1100px, ~3 MB).
+- `public/assets/CV_Randi_Nandika_Danendra_v2.pdf` — served URL. Download name is forced to `CV_Randi_Nandika_Danendra.pdf` via `profile.cvDownloadName`. Source of truth: `profile.cvUrl` / `profile.cvDownloadName` in `content.js`.
 - `public/favicon.svg` — orange "R" badge.
+
+## Performance rules
+
+- Do NOT `setState` on scroll/mousemove. Scroll-driven UI (ScrollProgress, Journey progress bar, ProjectDetail read bar) writes `style.transform` via `ref` + `requestAnimationFrame`. Hero text parallax reads a `useRef` offset, applied in a rAF loop.
+- Active-section detection uses `IntersectionObserver` with a change-guard (`setActiveIndex(prev => prev === idx ? prev : idx)`), never per-frame position reads.
+- Repeated CSS animations pause when the tab is hidden via `document.documentElement.classList` `tab-hidden` (toggled in `RootLayout`).
+- Only animate `transform`/`opacity`. Avoid permanent `will-change` except on continuously-moving elements.
+- Images: explicit `width`/`height`, `decoding="async"`; LCP image uses `fetchpriority="high"` + `<link rel="preload">` in `index.html`.
 
 ## Constraints
 

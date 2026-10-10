@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import ScrollProgress from '../components/ScrollProgress';
@@ -9,6 +9,16 @@ import ErrorBoundary from '../components/ErrorBoundary';
 
 export default function RootLayout({ children, showPanel, panelLabel }) {
   const [paletteOpen, setPaletteOpen] = useState(false);
+
+  // Pause animasi CSS berulang saat tab tidak aktif.
+  useEffect(() => {
+    const onVis = () => {
+      document.documentElement.classList.toggle('tab-hidden', document.hidden);
+    };
+    onVis();
+    document.addEventListener('visibilitychange', onVis);
+    return () => document.removeEventListener('visibilitychange', onVis);
+  }, []);
 
   return (
     <div className="min-h-screen bg-paper">

@@ -13,8 +13,10 @@ export const profile = {
   whatsappLink: "https://wa.me/6281999573818",
   github: "https://github.com/RandiBro234",
   linkedin: "https://www.linkedin.com/in/randi-nandika-danendra/",
-  cvPath: "/assets/CV_Randi_Nandika_Danendra.pdf",
+  cvUrl: "/assets/CV_Randi_Nandika_Danendra_v2.pdf",
+  cvDownloadName: "CV_Randi_Nandika_Danendra.pdf",
   portrait: "/assets/randi-cutout.png",
+  portraitWebp: "/assets/randi-cutout.webp",
 };
 
 // Kalimat dengan kata kerja berganti otomatis (typewriter), merujuk ke 3 proyek nyata.

@@ -177,8 +177,13 @@ function Terminal() {
     else if (cmd === 'skills') next.push({ type: 'out', text: 'Python, SQL, Pandas, Scikit-learn, CatBoost, XGBoost, FastAPI, Docker, MLflow.' });
     else if (cmd === 'contact') next.push({ type: 'out', text: `${profile.email} · ${profile.whatsapp}` });
     else if (cmd === 'cv') {
-      next.push({ type: 'out', text: 'Membuka CV...' });
-      window.open(profile.cvPath, '_blank');
+      next.push({ type: 'out', text: 'Mengunduh CV...' });
+      const a = document.createElement('a');
+      a.href = profile.cvUrl;
+      a.download = profile.cvDownloadName;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
     } else next.push({ type: 'out', text: `command not found: ${cmd}. Ketik "help".` });
     setLines(next);
     setInput('');
@@ -345,8 +350,8 @@ export default function Contact() {
               </div>
             </div>
             <a
-              href={profile.cvPath}
-              download
+              href={profile.cvUrl}
+              download={profile.cvDownloadName}
               data-cursor="unduh"
               className="inline-flex items-center gap-2 rounded-pill bg-accent px-6 py-3 text-[15px] font-semibold text-white transition-all hover:-translate-y-px hover:bg-[#e63f16]"
             >

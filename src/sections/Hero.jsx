@@ -171,26 +171,26 @@ function Typewriter({ words, reduced, start = true }) {
   );
 }
 
-// Parallax halus foto vs teks (berlawanan arah).
+// Parallax halus foto vs teks (berlawanan arah) — tanpa setState per event.
 function useParallax(enabled) {
-  const [offset, setOffset] = useState({ x: 0, y: 0 });
-  const raf = useRef(0);
+  const offset = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
     if (!enabled) return;
+    let raf = 0;
     const onMove = (e) => {
-      cancelAnimationFrame(raf.current);
-      raf.current = requestAnimationFrame(() => {
-        setOffset({
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        offset.current = {
           x: e.clientX / window.innerWidth - 0.5,
           y: e.clientY / window.innerHeight - 0.5,
-        });
+        };
       });
     };
-    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mousemove', onMove, { passive: true });
     return () => {
       window.removeEventListener('mousemove', onMove);
-      cancelAnimationFrame(raf.current);
+      cancelAnimationFrame(raf);
     };
   }, [enabled]);
 
@@ -213,9 +213,23 @@ export default function Hero() {
   }, [reduced]);
 
   const offset = useParallax(desktop);
-  const textStyle = desktop
-    ? { transform: `translate3d(${offset.x * -4}px, ${offset.y * -3}px, 0)` }
-    : undefined;
+  const textParallaxRef = useRef(null);
+
+  // Terapkan parallax teks lewat rAF tanpa render ulang.
+  useEffect(() => {
+    if (!desktop) return;
+    let raf = 0;
+    const loop = () => {
+      const el = textParallaxRef.current;
+      if (el) {
+        const { x, y } = offset.current;
+        el.style.transform = `translate3d(${x * -4}px, ${y * -3}px, 0)`;
+      }
+      raf = requestAnimationFrame(loop);
+    };
+    raf = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(raf);
+  }, [desktop, offset]);
 
   const reveal = (delay) =>
     reduced
@@ -259,7 +273,7 @@ export default function Hero() {
           </motion.p>
 
           {/* Blok teks raksasa */}
-          <div className="relative mt-4 w-full" style={textStyle}>
+          <div ref={textParallaxRef} className="relative mt-4 w-full will-change-transform">
             <div className="relative w-full">
               <GiantLines reduced={reduced} />
             </div>

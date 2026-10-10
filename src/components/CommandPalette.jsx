@@ -48,7 +48,7 @@ export default function CommandPalette({ open, onOpenChange }) {
       to: `/proyek/${p.id}`,
     }));
     const actionItems = [
-      { label: 'Unduh CV', hint: 'Aksi', href: profile.cvPath, download: true },
+      { label: 'Unduh CV', hint: 'Aksi', href: profile.cvUrl, download: profile.cvDownloadName },
       { label: 'Salin Email', hint: 'Aksi', action: showCopied },
       { label: 'Kirim Email', hint: 'Aksi', href: `mailto:${profile.email}` },
     ];
@@ -66,7 +66,20 @@ export default function CommandPalette({ open, onOpenChange }) {
     onOpenChange(false);
     if (item.to) return navigate(item.to);
     if (item.action) return item.action();
-    if (item.href) return window.open(item.href, item.download ? '_blank' : '_self');
+    if (item.href) {
+      const pdf = String(item.href).endsWith('.pdf');
+      if (pdf) {
+        // Unduh dengan nama bersih via anchor tersembunyi.
+        const a = document.createElement('a');
+        a.href = item.href;
+        a.download = typeof item.download === 'string' ? item.download : '';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        return;
+      }
+      return window.open(item.href, '_blank');
+    }
   };
 
   const onKeyDown = (e) => {
